@@ -1,0 +1,243 @@
+{
+	"info": {
+		"_postman_id": "b847c6d1-4b86-4239-851d-f6164489df23",
+		"name": "dentilib",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47035563",
+		"_collection_link": "https://spaceflight-physicist-84138738-1543995.postman.co/workspace/Manon's-Team's-Workspace~c252c3d6-f954-4fb0-8663-a5fc33487613/collection/47035563-b847c6d1-4b86-4239-851d-f6164489df23?action=share&source=collection_link&creator=47035563"
+	},
+	"item": [
+		{
+			"name": "CREATE ADMIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const statusCode = pm.response.code;\r",
+							" \r",
+							"if (statusCode !== 500) {\r",
+							" \r",
+							"    const reponse = pm.response.json();\r",
+							"    pm.test(\"the response must be JSON\", function () {\r",
+							"        pm.response.to.be.json\r",
+							"    })\r",
+							" \r",
+							" \r",
+							"    if (statusCode === 409) {\r",
+							"        pm.test(\"Check if error  Message is correct\", function () {\r",
+							"            pm.expect(reponse.message).to.eql(\"Email déjà utilisé.\");\r",
+							"        })\r",
+							"    }\r",
+							"    if (statusCode === 201) {\r",
+							"        pm.test(\"Check if body have properties message and user\", function () {\r",
+							"            pm.expect(reponse).to.have.property(\"message\");\r",
+							"            pm.expect(reponse).to.have.property(\"user\");\r",
+							"        })\r",
+							"    }\r",
+							"    \r",
+							"    if (statusCode === 400) {\r",
+							"        //pm.test(\"Message d'erreur si mot de passe trop court\", function () {\r",
+							"        //    if (message.includes(\"champ manquant\")) {\r",
+							"        //    pm.expect(message).to.include(\"Champs manquants\");\r",
+							"        //} \r",
+							"        //});\r",
+							"\r",
+							"        if(pm.iterationData.get(\"passwordCreation\").length == 0){\r",
+							"            pm.test(\"Message d'erreur si mot de passe est vide\", function () {\r",
+							"                pm.expect(reponse.message).to.eql(\"Champs manquants\");\r",
+							"            });\r",
+							"        }else if(pm.iterationData.get(\"passwordCreation\").length < 6)\r",
+							"            pm.test(\"Message d'erreur si mot de passe trop court\", function () {\r",
+							"            pm.expect(reponse.message).to.eql(\"Le mot de passe doit contenir au moins 6 caractères.\");\r",
+							"        });\r",
+							"    }\r",
+							"} else {\r",
+							"    pm.test(\"respose not json\", function(){\r",
+							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
+							"    })\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"avant\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{tokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"firstName\": \"{{lastName}}\",\r\n  \"lastName\": \"{{firstName}}\",\r\n  \"email\": \"{{emailCreation}}\",\r\n  \"password\": \"{{passwordCreation}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/user/create_Admin",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"create_Admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LOGIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"tokenAdmin\", pm.response.json().token);\r",
+							"const statusCode = pm.response.code;\r",
+							" \r",
+							"if (statusCode !== 500) { \r",
+							"    \r",
+							"    const reponse = pm.response.json();\r",
+							"    if (statusCode === 405) {\r",
+							"        pm.test(\"Si utilateur innexistant\", function () {\r",
+							"            pm.expect(reponse.message).to.eql(\"L'utilisateur n'existe pas\");\r",
+							"        })\r",
+							"    }\r",
+							"    if (statusCode === 401) {\r",
+							"        pm.test(\"Check if error  Message is correct\", function () {\r",
+							"            pm.expect(reponse.message).to.eql(\"mot de passe incorrect\");\r",
+							"        })\r",
+							"    }\r",
+							"} else {\r",
+							"    pm.test(\"respose not json\", function(){\r",
+							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
+							"    })\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{emailLogin}}\",\r\n  \"password\": \"{{passwordLogin}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/user/login_User",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"login_User"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const statusCode = pm.response.code;\r",
+							" \r",
+							"if (statusCode !== 500) {\r",
+							"} else {\r",
+							"    pm.test(\"respose not json\", function(){\r",
+							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
+							"    })\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{tokenAdmin}}"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/api/user/delete_actual_user",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"delete_actual_user"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,28 @@
+:root {
+  /* ===== Couleurs ===== */
+  --couleur-principale: #0066cc;
+  --couleur-principale-survol: #0052a3;
+
+  --couleur-texte: #222;
+  --couleur-texte-secondaire: #666;
+
+  --couleur-fond: #fafafa;
+
+  --couleur-bordure: #ccc;
+  --couleur-bordure-claire: #ddd;
+  --couleur-fond-entete-table: #f0f0f0;
+
+  /* ===== Typographie ===== */
+  --police-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --taille-texte-base: 16px;
+  --taille-texte-petit: 0.85rem;
+
+  /* ===== Espacements ===== */
+  --espace-xs: 0.3rem;
+  --espace-sm: 0.5rem;
+  --espace-md: 1rem;
+  --espace-lg: 2rem;
+
+  /* ===== Bordures ===== */
+  --rayon-bordure: 4px;
+}
