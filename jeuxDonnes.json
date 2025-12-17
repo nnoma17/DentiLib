@@ -1,0 +1,48 @@
+[
+  {
+    "emailCreation": "ahmed@gmail.com",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "passwordCreation": "123456",
+    "emailLogin": "ahmed@gmail.com",
+    "passwordLogin": "123456"
+  },
+ 
+   {
+    "emailCreation": "",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "passwordCreation": "123456",
+    "emailLogin": "ahmed@gmail.com",
+    "passwordLogin": "123456"
+  },
+ 
+  {
+    "emailCreation": "admin@gmail.com",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "passwordCreation": "123",
+    "emailLogin": "admin@gmail.com",
+    "passwordLogin": "123"
+  },
+ 
+ 
+  {
+    "emailCreation": "admin@gmail.com",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "passwordCreation": "123456789",
+    "emailLogin": "admin@gmail.com",
+    "passwordLogin": "123456"
+  },
+ 
+ 
+  {
+    "emailCreation": "admin@gmail.com",
+    "firstName": "firstName",
+    "lastName": "lastName",
+    "passwordCreation": "",
+    "emailLogin": "admin@gmail.com",
+    "passwordLogin": "123456"
+  }
+]

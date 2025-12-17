@@ -11,4 +11,4 @@ const procedureSchema = new mongoose.Schema({
 });
 
 const Procedure = mongoose.model('Procedure', procedureSchema);
-module.exports = Catalogue;
+module.exports = Procedure;
