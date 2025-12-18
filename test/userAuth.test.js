@@ -1,9 +1,28 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const User = require("../models/user.model")
+const { jwtDecode } = require("jwt-decode");
 
 const serverURL = "http://localhost:3000";
 let token;
+let idUserAdmin;
+
+beforeAll(async () => {
+    const res = await request(serverURL)
+        .post("/api/user/login_User")
+        .send({
+            email: "admin@email.fr",
+            password: "12345678"
+        });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.token).toBeDefined();
+
+    token = res.body.token;
+    idUserAdmin = jwtDecode(token).id;
+});
+
+
 
 describe("POST -create Admin", () => {
 
@@ -70,6 +89,8 @@ describe("POST -create Admin", () => {
         expect(res.statusCode).toBe(200);
         expect(res.body.token).toBeDefined();
         token = res.body.token;
+        //Met l'id de l'user connecté dans la variable globale pour les prochains tests
+        idUserAdmin = jwtDecode(token).id;
         expect(res.body.role).toBe("ADMIN");
     });
 
@@ -97,6 +118,9 @@ describe("POST -create Admin", () => {
     });
 })
 
+
+
+
 describe("DELETE - delete actual user", () => {
     it("devrait supprimer l'utilisateur actuel", async () => {
         const res = await request(serverURL)
@@ -114,14 +138,4 @@ describe("DELETE - delete actual user", () => {
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toBe("token no trouvé ou invalide");
     });
-/*
-    it("devrait supprimer l'utilisateur actuel", async () => {
-        const res = await request(serverURL)
-            .delete("/api/user/delete_actual_user")
-            .set("Authorization", `Bearer ${token}`);
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.message).toBe("token no trouvé ou invalide");
-    });*/
-
 });
