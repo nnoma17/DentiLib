@@ -3,7 +3,7 @@ const {
     createUser,
     createAdmin,
     deleteUser,
-//    deleteActualUser,
+    deleteActualUser,
     updateUser,
     getAllUsers
 } = require("../../controllers/admin/gestionUser.controller");
@@ -15,5 +15,6 @@ router.post('/admin/create_Account', authMiddleware, createUser);
 router.get('/admin/get_All_Users', authMiddleware, getAllUsers);
 router.put('/admin/update_User/:userId', authMiddleware, updateUser);
 router.delete("/admin/delete_User/:userId",authMiddleware, deleteUser);
+router.delete("/user/delete_actual_user",authMiddleware, deleteActualUser);
 
 module.exports = router;
