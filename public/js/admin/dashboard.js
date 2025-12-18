@@ -3,7 +3,7 @@ const userTableBody = document.getElementById("userTableBody");
 document.addEventListener("DOMContentLoaded", () => {
     let allUsers = [];
     
-    async function fetchUsers() {
+    async function getUsers() {
         try {
             const response = await fetch("/api/admin/get_All_Users", {
                 headers: {
@@ -35,11 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${user.lastName || ""}</td>
                     <td>${user.email}</td>
                     <td>${user.role}</td>
-                    <td><div class="div-button"><span><a href="detailUser.html?id=${user._id}" class="user-link">Details</a></span><span class="status-circle ${statusClass}"></span></div></td>
+                    <td><div class="div-button"><span><a href="detailUser.html?${user._id}" class="user-link">Details</a></span><span class="status-circle ${statusClass}"></span></div></td>
                 `;
             userTableBody.appendChild(row);
             }
     }
 
-    fetchUsers();
+    getUsers();
 });

@@ -216,43 +216,54 @@ const createUser = async (req, res) => {
     }
  
     if (role === 'PROTHESISTE') {
-      if (!dentisteId) {
-        return res.status(400).json({
-          message: 'dentisteId is required for prothesiste'
-        })
-      }
+		if (!dentisteId) {
+			return res.status(400).json({
+				message: 'dentisteId is required for prothesiste'
+			})
+		}
  
-      const dentiste = await User.findById(dentisteId)
+		const dentiste = await User.findById(dentisteId)
  
-      if (!dentiste || dentiste.role !== 'DENTISTE') {
-        return res.status(404).json({
-          message: 'Dentiste not found'
-        })
-      }
+		if (!dentiste || dentiste.role !== 'DENTISTE') {
+			return res.status(404).json({
+				message: 'Dentiste not found'
+			})
+		}
  
-      user.associatedUser = dentiste._id
-      dentiste.associatedUser = user._id
+		user.associatedUser = dentiste._id
+		dentiste.associatedUser = user._id
  
-      await user.save()
-      await dentiste.save()
- 
-      return res.status(201).json({
-        message: 'Prothesiste created and linked to dentiste',
-        prothesiste: user,
-        dentiste
-      })
-    }
+		await user.save()
+		await dentiste.save() 
+  
+		return res.status(201).json({ 
+			message: 'Prothesiste created and linked to dentiste', 
+			prothesiste: user, 
+			dentiste
+		})
+    } 
  
     return res.status(400).json({ message: 'Invalid role' })
  
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error : error.message })
-  }
+    res.status(500).json({ message: 'Server error', error : error.message }) 
+  } 
 }
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => { 
     try {
-        const users = await User.find();
+        const users = await User.find(); 
+        res.status(200).json({ success: true, users }); 
+ 
+    } catch (error){
+        res.status(500).json({message: "une erreur est survenu", error : error.message}); 
+    } 
+} 
+
+const getAllUsersNotAdmin = async (req, res) => {
+    try {
+		//qui ne sont pas des admin
+		const users = await User.find({ role: { $ne: 'ADMIN' } });
         res.status(200).json({ success: true, users });
 
     } catch (error){
@@ -265,5 +276,6 @@ module.exports = {
     deleteUser,
     updateUser,
     createUser,
-    getAllUsers
+    getAllUsers,
+	getAllUsersNotAdmin
 };
