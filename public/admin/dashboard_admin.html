@@ -4,28 +4,105 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Dentilib</title>
-    <link rel="stylesheet" href="/styles/login.css" />
+    <link rel="stylesheet" href="../styles/variables.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/dashboard.css" />
+    <link rel="stylesheet" href="../styles/modal.css" />
 </head>
 <body>
     <header>
-        <h1>Connexion</h1>
+        <h2>Nom Prénom</h2>
     </header>
  
     <main>
         <section>
-            <h2>ADMIN</h2>
-            <a href="../login.html">Accéder au tableau de bord</a>
+            <h2>Dashboard</h2>
+        </section>
+        <section>
+            <button id="createUser">Créer un utilisateur</button>
         </section>
         <section>
             <!-- tableau avec la liste des professionnels-->
+             <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Les lignes des utilisateurs seront insérées ici dynamiquement -->
+                </tbody>
+            </table>
              
+        </section>
+        <section>
+            <div class = "disconnect-div">
+                <button id="disconnect" href="../login.html">Se deconnecter</button>
+            </div>
         </section>
     </main>
  
     <footer>
         <p>Consulting School Project © 2025 Dentilib</p>
     </footer>
+
+    <!-- The Modal Create User -->
+	<div id="modalCreateUser" class="modal">
+		<div class="modal-content">
+			<h1 class="title-modal">Nouvelle utilisateur</h1>
+			<span id="close-modal-createUser">&times;</span>
+			<form id="createUser-form">				
+				<div class="inline-fields">
+					<div class="inline">
+						<div class="form-group">
+							<label for="lastName">Nom :</label>
+							<input type="text" id="lastName" required>
+							<label for="firstName">Prénom :</label>
+							<input type="text" id="firstName" required>
+						</div>
+					</div>
+
+					<div class="inline">
+						<div class="form-group">
+							<label for="email">Email :</label>
+							<input type="email" id="email" required>
+						</div>
+					</div>
+
+                    <div class="inline">
+						<div class="form-group">
+							<label for="role">Rôle :</label>
+                            <select id="role" name="role" required>
+                                <option value="admin" disabled selected>Choisir un rôle</option>
+                                <option value="admin">Admin</option>
+                                <option value="dentiste">Dentiste</option>
+                                <option value="prothesiste">Prothesiste</option>
+                            </select>
+
+                            <label for="siret">Siret :</label>
+                            <input type="text" id="siret" required>
+						</div>
+					</div>
+
+                    <div class="inline">
+                        <div class="form-group">
+                            <label for="password">Mot de passe :</label>
+                            <input type="password" id="password" required>
+						</div>
+					</div>
+				</div>
+
+				<button id="btnCreate" type="submit" style="display: block;">Ajouter</button>
+				<button id="btnModify" type="submit" style="display: none;">Modifier</button>
+			</form>
+		</div>
+	</div>
  
-    <script src="/js/login.js"></script>
+    <script src="/js/admin/dashboard.js"></script>
+    <script src="/js/admin/modalCreateUser.js"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["ADMIN","DENTISTE","PATIENT"],
+        enum: ["ADMIN","DENTISTE","PROTHESISTE"],
         required: true
     },
     siret:{
