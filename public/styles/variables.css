@@ -5,9 +5,12 @@
   /* ===================== Bordures ===================== */
   --rayon-bordure: 4px;
 
-  /* ===================== Boutons ===================== */
+  /* ===================== Couleurs principales ===================== */
   --couleur-principale: #0066cc;
   --couleur-principale-survol: #0052a3;
+  --couleur-secondaire: #004080;
+  --couleur-secondaire-survol: #003366;
+  /* ===================== Boutons ===================== */
   --couleur-suppression: #e74c3c;
   --couleur-suppression-survol: #c0392b;
 

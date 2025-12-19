@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Dentilib</title>
-    <link rel="stylesheet" href="../styles/variables.css" />
-    <link rel="stylesheet" href="../styles/base.css" />
-    <link rel="stylesheet" href="../styles/dashboard.css" />
-    <link rel="stylesheet" href="../styles/modal.css" />
+    <link rel="stylesheet" href="../../styles/variables.css" />
+    <link rel="stylesheet" href="../../styles/base.css" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <link rel="stylesheet" href="../../styles/modal.css" />
 </head>
 <body>
     <header>
@@ -20,6 +20,7 @@
         </section>
         <section>
             <button id="createUser">Créer un utilisateur</button>
+            <button id="listProcedure">Liste des actes</button>
         </section>
         <section>
             <!-- tableau avec la liste des professionnels-->
@@ -30,7 +31,8 @@
                         <th>Prénom</th>
                         <th>Email</th>
                         <th>Rôle</th>
-                        <th>Actions</th>
+                        <th>Professionnel Associé</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
@@ -77,12 +79,24 @@
 						<div class="form-group">
 							<label for="role">Rôle :</label>
                             <select id="role" name="role" required>
-                                <option value="admin" disabled selected>Choisir un rôle</option>
-                                <option value="admin">Admin</option>
-                                <option value="dentiste">Dentiste</option>
-                                <option value="prothesiste">Prothesiste</option>
+                                <option value="N/A" disabled selected>Choisir un rôle</option>
+                                <option value="DENTISTE">Dentiste</option>
+                                <option value="PROTHESISTE">Prothesiste</option>
                             </select>
+                            
+                            <div id="div-list-dentiste" class = "div-list-dentiste">
+                                <label for="listDentiste">Dentiste :</label>
+                                <select id="listDentiste" name="listDentiste" required>
+                                    <option value="" selected>Choisir un Dentiste</option>
+                                    <!-- Les options seront ajoutées dynamiquement via JavaScript -->
+                                </select>
+                            </div>
 
+						</div>
+					</div>
+
+                    <div class="inline">
+                        <div class="form-group">
                             <label for="siret">Siret :</label>
                             <input type="text" id="siret" required>
 						</div>

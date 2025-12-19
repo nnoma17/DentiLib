@@ -250,9 +250,42 @@ const createUser = async (req, res) => {
   } 
 }
 
+const getUserById = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Utilisateur non trouvé"
+            });
+        }
+
+        res.status(200).json({ success: true, user });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "une erreur est survenu",
+            error: error.message
+        });
+    }
+};
+
 const getAllUsers = async (req, res) => { 
     try {
         const users = await User.find(); 
+        res.status(200).json({ success: true, users }); 
+ 
+    } catch (error){
+        res.status(500).json({message: "une erreur est survenu", error : error.message}); 
+    } 
+}
+
+const getAllDentists = async (req, res) => { 
+    try {
+        const users = await User.find({ role: 'DENTISTE' }); 
         res.status(200).json({ success: true, users }); 
  
     } catch (error){
@@ -276,6 +309,8 @@ module.exports = {
     deleteUser,
     updateUser,
     createUser,
+    getUserById,
     getAllUsers,
+    getAllDentists,
 	getAllUsersNotAdmin
 };
