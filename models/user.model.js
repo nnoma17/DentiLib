@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     siret:{
         type: Number
     },
-    associadtedUser:{
+    associatedUser:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },

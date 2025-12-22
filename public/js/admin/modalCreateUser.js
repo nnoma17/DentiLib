@@ -15,6 +15,7 @@ const siretInput = document.getElementById("siret");
 const passwordInput = document.getElementById("password");
 const divListDentisteSelect = document.getElementById("div-list-dentiste");
 const listDentisteSelect = document.getElementById("listDentiste");
+const errorMessage = document.getElementById("errorMessage");
 
 async function createUser() {
     try {
@@ -34,15 +35,32 @@ async function createUser() {
                 dentisteId: listDentisteSelect.value
             })
         });
-
+        const data = await response.json();
         if (!response.ok){ 
-            throw new Error("Erreur lors de la récupération des utilisateurs");
+            errorMessage.style.display = "block";
+            errorMessage.textContent = data.message;
+        } else{
+            getUsers();
+            resetForm();
+            //Reset du formulaire
         }
         
-        getUsers();
     } catch (error) {
         console.error(error);
     }
+}
+
+function resetForm(){
+    // Cacher message d'erreur
+    errorMessage.style.display = "none";
+    errorMessage.textContent = "";
+
+    // Reinitialiser la liste des dentistes
+    divListDentisteSelect.style.display = "none";
+    listDentisteSelect.required = false;
+    listDentisteSelect.innerHTML = '<option value="">-- Sélectionner un dentiste --</option>'; //Evite les Doublons
+    formCreateUser.reset();
+
 }
 
 async function fetchDentists() {
@@ -52,10 +70,6 @@ async function fetchDentists() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             }
         });
-
-        if (!response.ok){ 
-            throw new Error("Erreur lors de la récupération des utilisateurs");
-        }
         
         let data = await response.json();
         displayDentist(data.users);
@@ -77,6 +91,8 @@ function displayDentist(users){
 
 // Ouvrir la modal
 btnCreateUser.onclick = function () {
+    errorMessage.style.display = "none";
+    errorMessage.textContent = "";
     modal.style.display = "flex";
 };
 
@@ -94,14 +110,14 @@ window.onclick = function (event) {
     }
 };
 
-
+//Validation formulaire
 formCreateUser.addEventListener("submit", (e) => {
     e.preventDefault();
-    //TODO: si tout est ok
     createUser();
     
 })
 
+//Selection Role
 roleSelect.addEventListener("change", () => {
     const role = roleSelect.value;
     if (role === "PROTHESISTE") { // devient visible

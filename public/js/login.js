@@ -1,7 +1,7 @@
 const loginForm = document.getElementById("loginForm");
 const emailLogin = document.getElementById("email");
 const passwordLogin = document.getElementById("password");
-const errorLogin = document.getElementById("errorLogin");
+const errorLogin = document.querySelector(".error");
 
 const params = new URLSearchParams(window.location.search)
 token = params.get('token')

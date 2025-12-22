@@ -2,38 +2,6 @@ const User = require("../../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const createNewUser = async (req, res) => {
-  const { firstName, lastName, email, siret, password, role } = req.body;
-
-    try {
-        if (!firstName || !lastName || !email || !password)
-        return res.json({ success: false, message: "Champs manquants"});
-        
-    const alreadyExists = await User.findOne({ email });
-    
-    if (alreadyExists)
-      return res.status(409).json({ success: false, message: "Email déjà utilisé." });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        siret: siret,
-        password: hashedPassword,
-        role: role
-    });
-    await user.save();
-
-    res.status(201).json({ success: true, message: "Utilisateur créé.", user });
-    
-    } catch (error) {
-        res.status(500).json({message: "une erreur est survenu", error : error.message});
-
-    }
-};
-
 const createAdmin = async (req, res) => {
   const { firstName, lastName, email, siret, password } = req.body;
 
@@ -189,66 +157,95 @@ const createUser = async (req, res) => {
       lastName,
       email,
       password,
-      role,        
+      role,
       siret,
-      listeActes,
-      dentisteId  
-    } = req.body
- 
+      dentisteId
+    } = req.body;
+
+    if (!firstName || !lastName || !email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Champs manquants"
+      });
+    }
+
+    let regexSiret = /^\d+$/;
+    if(!regexSiret.test(siret)){
+      return res.status(409).json({
+        success: false,
+        message: "Le siret doit comporter uniquement des nombres"
+      });
+    }
+
+    const alreadyExists = await User.findOne({ email });
+    if (alreadyExists) {
+      return res.status(409).json({
+        success: false,
+        message: "Email déjà utilisé."
+      });
+    }
+
+    
+    if(password.length <6){
+        return  res.status(400).json({ success: false, message: "Le mot de passe doit contenir au moins 6 caractères."});
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = new User({
       firstName,
       lastName,
       email,
-      password,
+      password: hashedPassword,
       role,
-      siret,
-      listeActes,
-      associatedUser: null
-    })
- 
-    await user.save()
- 
-    if (role === 'DENTISTE') {
+      siret
+    });
+
+    if (role === "PROTHESISTE") {
+      if (!dentisteId) {
+        return res.status(400).json({
+          success: false,
+          message: "dentisteId requis pour un prothésiste"
+        });
+      }
+
+      const dentiste = await User.findById(dentisteId);
+      if (!dentiste || dentiste.role !== "DENTISTE") {
+        return res.status(404).json({
+          success: false,
+          message: "Dentiste non trouvé"
+        });
+      }
+
+      user.associatedUser = dentiste._id;
+      dentiste.associatedUser = user._id;
+
+      await dentiste.save();
+      await user.save();
       return res.status(201).json({
-        message: 'Dentiste created',
+        success: true,
+        message: "Prothésiste créé",
         user
-      })
+      });
+      
     }
- 
-    if (role === 'PROTHESISTE') {
-		if (!dentisteId) {
-			return res.status(400).json({
-				message: 'dentisteId is required for prothesiste'
-			})
-		}
- 
-		const dentiste = await User.findById(dentisteId)
- 
-		if (!dentiste || dentiste.role !== 'DENTISTE') {
-			return res.status(404).json({
-				message: 'Dentiste not found'
-			})
-		}
- 
-		user.associatedUser = dentiste._id
-		dentiste.associatedUser = user._id
- 
-		await user.save()
-		await dentiste.save() 
-  
-		return res.status(201).json({ 
-			message: 'Prothesiste created and linked to dentiste', 
-			prothesiste: user, 
-			dentiste
-		})
-    } 
- 
-    return res.status(400).json({ message: 'Invalid role' })
- 
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Utilisateur créé",
+      user
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error : error.message }) 
-  } 
-}
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
 
 const getUserById = async (req, res) => {
     const { userId } = req.params;

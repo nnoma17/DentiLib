@@ -34,12 +34,6 @@
   cursor: pointer;
 }
 
-/* ===== Organisation des lignes ===== */
-.inline-fields {
-  display: flex;
-  flex-direction: column;
-}
-
 /* ===== Champs ===== */
 .form-group {
   display: flex;

@@ -8,12 +8,15 @@
   /* ===================== Couleurs principales ===================== */
   --couleur-principale: #0066cc;
   --couleur-principale-survol: #0052a3;
-  --couleur-secondaire: #004080;
-  --couleur-secondaire-survol: #003366;
+  --couleur-secondaire: #ffffff;
+  --couleur-secondaire-survol: #fafafa;
   /* ===================== Boutons ===================== */
-  --couleur-suppression: #e74c3c;
-  --couleur-suppression-survol: #c0392b;
+  --couleur-suppression: #990000;
+  --couleur-suppression-survol: #990000;
 
+  /*------ Deconnection -------*/
+  --couleur-btnDeconnexion: #cc1111;
+  --couleur-btnDeconnexion-survol: #990000;
   /* ===================== Texte ===================== */
   --couleur-texte: #222;
   --couleur-texte-secondaire: #666;

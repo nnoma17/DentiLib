@@ -13,18 +13,17 @@ section {
 
 /* ===== Bouton déconnexion ===== */
 .disconnect-div {
-  display: flex;
-  justify-content: flex-end;
+    margin-left: auto;
 }
 
 #disconnect {
   padding: 0.75rem 1rem;
-  background-color: var(--couleur-suppression);
+  background-color: var(--couleur-btnDeconnexion);
   font-weight: 600;
 }
 
 #disconnect:hover {
-  background-color: var(--couleur-suppression-survol);
+  background-color: var(--couleur-btnDeconnexion-survol);
 }
 
 /* ===== Tableau ===== */
@@ -37,7 +36,7 @@ table {
 
 thead {
   background-color: var(--couleur-principale);
-  color: #fff;
+  color: var(--couleur-secondaire);
 }
 
 th, td {
@@ -45,7 +44,7 @@ th, td {
 }
 
 tbody tr {
-  background-color: #fff;
+  background-color: var(--couleur-fond);
   transition: background-color 0.2s ease;
 }
 

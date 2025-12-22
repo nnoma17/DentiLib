@@ -11,7 +11,15 @@
 </head>
 <body>
     <header>
-        <h2>Nom Prénom</h2>
+        <div class = "inline-fields">
+            <div class="inline">
+                <h2 id="TitleNameUser"></h2>
+                    
+                <div class = "disconnect-div">
+                    <button id="disconnect" href="../login.html">Se deconnecter</button>
+                </div>
+            </div>
+        </div>
     </header>
  
     <main>
@@ -42,9 +50,6 @@
              
         </section>
         <section>
-            <div class = "disconnect-div">
-                <button id="disconnect" href="../login.html">Se deconnecter</button>
-            </div>
         </section>
     </main>
  
@@ -109,6 +114,8 @@
 						</div>
 					</div>
 				</div>
+                
+                <div><p id="errorMessage" class = "error">message d'erreur</p></div>
 
 				<button id="btnCreate" type="submit" style="display: block;">Ajouter</button>
 				<button id="btnModify" type="submit" style="display: none;">Modifier</button>
