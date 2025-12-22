@@ -54,6 +54,9 @@ function resetForm(){
     // Cacher message d'erreur
     errorMessage.style.display = "none";
     errorMessage.textContent = "";
+    
+    //Choisir un rôle par defaut
+    roleSelect.selectedIndex = 0; 
 
     // Reinitialiser la liste des dentistes
     divListDentisteSelect.style.display = "none";
