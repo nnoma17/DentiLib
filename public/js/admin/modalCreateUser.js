@@ -82,10 +82,13 @@ function displayDentist(users){
     console.log(users);
 
     for(let user of users){
-        const option = document.createElement("option");
-        option.value = user._id;
-        option.textContent = `${user.firstName} ${user.lastName}`;
-        listDentisteSelect.appendChild(option);
+        if(!user.associatedUser){
+            console.log(user.associatedUser);
+            const option = document.createElement("option");
+            option.value = user._id;
+            option.textContent = `${user.firstName} ${user.lastName}`;
+            listDentisteSelect.appendChild(option);
+        }
     }
 }
 
