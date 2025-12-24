@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,8 @@
   },
   "devDependencies": {
     "cypress": "^15.8.0",
-    "cypress-xpath": "^2.0.1"
+    "cypress-xpath": "^2.0.1",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   }
 }
