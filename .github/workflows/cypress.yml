@@ -2,7 +2,7 @@ name: Tests Cypress
 
 on:
   push:
-    branches: [main]
+    branches: [main, test]
   pull_request:
     branches: [main]
 
