@@ -96,6 +96,10 @@ button:active {
   transform: scale(0.97);
 }
 
+.btn-confirm {
+    background-color: #ffffff; /* bleu confirmation */
+}
+
 /* ===== Tableaux ===== */
 table {
   width: 100%;

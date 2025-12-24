@@ -47,10 +47,6 @@ section {
     background-color: var(--couleur-principale-survol); 
 }
 
-/* Confirmation suppression */
-.delete-user.btn-confirm {
-    background-color: #ffffff; /* bleu confirmation */
-}
 
 /* ===== Tableau ===== */
 table {
