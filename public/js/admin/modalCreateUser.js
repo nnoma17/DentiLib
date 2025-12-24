@@ -1,3 +1,4 @@
+import { getUsers } from './dashboard.js';
 
 const modal = document.getElementById("modalCreateUser");
 const spanCloseModal = document.getElementById("close-modal-createUser");
@@ -42,7 +43,6 @@ async function createUser() {
         } else{
             getUsers();
             resetForm();
-            //Reset du formulaire
         }
         
     } catch (error) {
@@ -82,11 +82,9 @@ async function fetchDentists() {
 }
 
 function displayDentist(users){
-    console.log(users);
 
     for(let user of users){
         if(!user.associatedUser){
-            console.log(user.associatedUser);
             const option = document.createElement("option");
             option.value = user._id;
             option.textContent = `${user.firstName} ${user.lastName}`;
@@ -97,6 +95,8 @@ function displayDentist(users){
 
 // Ouvrir la modal
 btnCreateUser.onclick = function () {
+    
+    //Cache le btn Modifier et affiche le btn Ajouter
     errorMessage.style.display = "none";
     errorMessage.textContent = "";
     modal.style.display = "flex";

@@ -24,11 +24,24 @@
  
     <main>
         <section>
-            <h2>Dashboard</h2>
-        </section>
-        <section>
             <button id="createUser">Créer un utilisateur</button>
             <button id="listProcedure">Liste des actes</button>
+        </section>
+        <section>
+            <div>
+                <div>
+                    <div class="dropdown-input">
+                        <div class="select-wrapper">
+                            <select name="professional" id="professional-value">
+                                <option value="ALL" selected>Tous</option>
+                                <option value="DENTISTE">Dentiste</option>
+                                <option value="PROTHESISTE">Prothésiste</option>
+                            </select>
+                        </div>
+                        <input type="text" placeholder="Nom Prénom" id="filter-name" name="filter-name">
+                    </div>
+                </div>
+            </div>
         </section>
         <section>
             <!-- tableau avec la liste des professionnels-->
@@ -40,7 +53,7 @@
                         <th>Email</th>
                         <th>Rôle</th>
                         <th>Professionnel Associé</th>
-                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
@@ -61,29 +74,29 @@
 	<div id="modalCreateUser" class="modal">
 		<div class="modal-content">
 			<h1 class="title-modal">Nouvelle utilisateur</h1>
-			<span id="close-modal-createUser">&times;</span>
+			<span class="close-modal" id="close-modal-createUser">&times;</span>
 			<form id="createUser-form">				
 				<div class="inline-fields">
 					<div class="inline">
 						<div class="form-group">
 							<label for="lastName">Nom :</label>
-							<input type="text" id="lastName" required>
+							<input type="text" id="lastName" >
 							<label for="firstName">Prénom :</label>
-							<input type="text" id="firstName" required>
+							<input type="text" id="firstName" >
 						</div>
 					</div>
 
 					<div class="inline">
 						<div class="form-group">
 							<label for="email">Email :</label>
-							<input type="email" id="email" required>
+							<input type="email" id="email" >
 						</div>
 					</div>
 
                     <div class="inline">
 						<div class="form-group">
 							<label for="role">Rôle :</label>
-                            <select id="role" name="role" required>
+                            <select id="role" name="role" >
                                 <option value="N/A" disabled selected>Choisir un rôle</option>
                                 <option value="DENTISTE">Dentiste</option>
                                 <option value="PROTHESISTE">Prothesiste</option>
@@ -91,7 +104,7 @@
                             
                             <div id="div-list-dentiste" class = "div-list-dentiste">
                                 <label for="listDentiste">Dentiste :</label>
-                                <select id="listDentiste" name="listDentiste" required>
+                                <select id="listDentiste" name="listDentiste" >
                                     <option value="" selected>Choisir un Dentiste</option>
                                     <!-- Les options seront ajoutées dynamiquement via JavaScript -->
                                 </select>
@@ -103,14 +116,14 @@
                     <div class="inline">
                         <div class="form-group">
                             <label for="siret">Siret :</label>
-                            <input type="text" id="siret" required>
+                            <input type="text" id="siret" >
 						</div>
 					</div>
 
                     <div class="inline">
                         <div class="form-group">
                             <label for="password">Mot de passe :</label>
-                            <input type="password" id="password" required>
+                            <input type="password" id="password" >
 						</div>
 					</div>
 				</div>
@@ -118,12 +131,73 @@
                 <div><p id="errorMessage" class = "error">message d'erreur</p></div>
 
 				<button id="btnCreate" type="submit" style="display: block;">Ajouter</button>
-				<button id="btnModify" type="submit" style="display: none;">Modifier</button>
+			</form>
+		</div>
+	</div>
+
+    <div id="modalModifyUser" class="modal">
+		<div class="modal-content">
+			<h1 class="title-modal">Modifier utilisateur</h1>
+			<span class="close-modal" id="close-modal-modifyUser">&times;</span>
+			<form id="modifyUser-form">				
+				<div class="inline-fields">
+					<div class="inline">
+						<div class="form-group">
+							<label for="lastName" >Nom :</label>
+							<input type="text" id="lastName-modifyUser" >
+							<label for="firstName">Prénom :</label>
+							<input type="text" id="firstName-modifyUser" >
+						</div>
+					</div>
+
+					<div class="inline">
+						<div class="form-group">
+							<label for="email">Email :</label>
+							<input type="email" id="email-modifyUser" >
+						</div>
+					</div>
+
+                    <div class="inline">
+						<div class="form-group">
+							<label for="role">Rôle :</label>
+                            <select id="role-modifyUser" name="role" disabled>
+                                <option value="DENTISTE">Dentiste</option>
+                                <option value="PROTHESISTE">Prothesiste</option>
+                            </select>
+                            
+                            <div id="div-list-dentiste-modifyUser" class = "div-list-dentiste">
+                                <label for="listDentiste">Associé :</label>
+                                <select id="listDentiste-modifyUser" name="listDentiste" disabled>=
+                                </select>
+                            </div>
+
+						</div>
+					</div>
+
+                    <div class="inline">
+                        <div class="form-group">
+                            <label for="siret">Siret :</label>
+                            <input type="text" id="siret-modifyUser" >
+						</div>
+					</div>
+
+                    <div class="inline">
+                        <div class="form-group">
+                            <label for="password">Mot de passe :</label>
+                            <input type="password" id="password-modifyUser" >
+						</div>
+					</div>
+				</div>
+                
+                <div><p id="errorMessage" class = "error">message d'erreur</p></div>
+
+				<button id="btnModify" type="submit">Modifier</button>
 			</form>
 		</div>
 	</div>
  
-    <script src="/js/admin/dashboard.js"></script>
-    <script src="/js/admin/modalCreateUser.js"></script>
+    <script type="module" src="/js/userInfo.js"></script>
+    <script type="module" src="/js/admin/dashboard.js"></script>
+    <script type="module" src="/js/admin/modalCreateUser.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 const User = require("../../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { sendUserCreationMail } = require("../../utils/mailer");
 
 const createAdmin = async (req, res) => {
   const { firstName, lastName, email, siret, password } = req.body;
@@ -109,7 +110,7 @@ const deleteActualUser = async (req,res) => {
 
 //mise a jour d'un utilisateur que l'admin va selectionner
 const updateUser = async (req, res) => {
-    const { firstName, lastName, email, siret, roles} = req.body;
+    const { firstName, lastName, email, siret, role} = req.body;
     const userId = req.params.userId;
 
     try {
@@ -138,7 +139,7 @@ const updateUser = async (req, res) => {
         user.lastName = lastName || user.lastName;
         user.email = email || user.email;
         user.siret = siret || user.siret;
-        user.roles = roles || user.roles;
+        user.role = role || user.role;
 
         await user.save();
 
@@ -152,28 +153,23 @@ const updateUser = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      siret,
-      dentisteId
-    } = req.body;
+    const { firstName, lastName, email, password, role, siret, dentisteId } = req.body;
 
     if (!firstName || !lastName || !email || !password || !role) {
+      return res.status(400).json({ success: false, message: "Champs manquants" });
+    }
+
+    if (siret && !/^\d+$/.test(siret)) {
       return res.status(400).json({
         success: false,
-        message: "Champs manquants"
+        message: "Le siret doit comporter uniquement des nombres"
       });
     }
 
-    let regexSiret = /^\d+$/;
-    if(!regexSiret.test(siret)){
-      return res.status(409).json({
+    if (password.length < 6) {
+      return res.status(400).json({
         success: false,
-        message: "Le siret doit comporter uniquement des nombres"
+        message: "Le mot de passe doit contenir au moins 6 caractères."
       });
     }
 
@@ -183,11 +179,6 @@ const createUser = async (req, res) => {
         success: false,
         message: "Email déjà utilisé."
       });
-    }
-
-    
-    if(password.length <6){
-        return  res.status(400).json({ success: false, message: "Le mot de passe doit contenir au moins 6 caractères."});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -222,15 +213,18 @@ const createUser = async (req, res) => {
 
       await dentiste.save();
       await user.save();
+
+      await sendUserCreationMail(user.email, user.firstName, password);
+
       return res.status(201).json({
         success: true,
         message: "Prothésiste créé",
         user
       });
-      
     }
 
     await user.save();
+    await sendUserCreationMail(user.email, user.firstName, password);
 
     res.status(201).json({
       success: true,
@@ -239,6 +233,7 @@ const createUser = async (req, res) => {
     });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Erreur serveur",
@@ -246,6 +241,7 @@ const createUser = async (req, res) => {
     });
   }
 };
+
 
 const getUserById = async (req, res) => {
     const { userId } = req.params;

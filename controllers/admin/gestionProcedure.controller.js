@@ -99,9 +99,56 @@ const getAllProcedures = async (req, res) => {
     }
 }
 
+const modifyProcedure = async (req, res) => {
+    const { name, description } = req.body;
+    const procedureId = req.params.procedureId;
+
+    try {
+        // Vérifie que l'acte existe
+        const procedure = await Procedure.findById(procedureId);
+        if (!procedure) {
+            return res.status(404).json({
+                success: false,
+                message: "Acte non trouvé"
+            });
+        }
+
+        // Vérifie que le nouveau nom n'est pas déjà utilisé par un autre acte
+        if (name && name !== procedure.name) {
+            const nameAlreadyUsed = await Procedure.findOne({ name });
+            if (nameAlreadyUsed) {
+                return res.status(409).json({
+                    success: false,
+                    message: "Ce nom est déjà utilisé"
+                });
+            }
+        }
+
+        // Met à jour les champs
+        procedure.name = name || procedure.name;
+        procedure.description = description || procedure.description;
+
+        await procedure.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Acte modifié avec succès",
+            procedure
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Une erreur est survenue",
+            error: error.message
+        });
+    }
+}
+
 module.exports = {
     createProcedure,
     deleteProcedure,
     updateProcedure,
-    getAllProcedures
+    getAllProcedures,
+    modifyProcedure
 };

@@ -12,7 +12,7 @@
 
 /* ===== Contenu de la modal ===== */
 .modal-content {
-  background: #fff;
+  background-color: var(--couleur-fond);
   padding: 1.5rem;
   width: 100%;
   max-width: 550px;
@@ -26,7 +26,7 @@
 }
 
 /* ===== Bouton fermer ===== */
-#close-modal-createUser {
+.close-modal {
   position: absolute;
   top: 12px;
   right: 16px;
@@ -51,7 +51,6 @@ select {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
 }
 
 /* ===== Boutons ===== */
@@ -62,6 +61,53 @@ select {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.btn-action {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #6b7280;
+    mask-size: 18px;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: 18px;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    transition: background-color 0.2s ease;
+}
+
+
+/* ===== Boutons d'action ===== */
+.btn-action {
+  background-color: #f0f0f0; /* couleur de fond neutre */
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  background-color: #e0e0e0; /* légèrement plus sombre au survol */
+  border-color: #999;
+}
+
+.btn-action:active {
+  background-color: #d0d0d0; /* effet d'appui */
+  transform: scale(0.97);
+}
+
+/* Petites icônes ou emoji à l'intérieur du bouton */
+.btn-action i,
+.btn-action span {
+  margin-right: 4px;
 }
 
 /* ===== Liste Dentistes ===== */
