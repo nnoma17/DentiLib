@@ -4,23 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Dentilib</title>
+    <link rel="stylesheet" href="/styles/base.css" />
     <link rel="stylesheet" href="/styles/login.css" />
+    <link rel="stylesheet" href="/styles/variables.css" />
 </head>
 <body>
     <header>
-        <h1>Connexion</h1>
+        <h1>Dentilib</h1>
     </header>
  
     <main>
         <section>
-            <h2>Veuillez vous connecter</h2>
+            <h2>Bienvenue !</h2>
             <form id="loginForm">
                 <input type="text" id="email" name="email" placeholder="Email" />
                 <input type="password" id="password" name="password" placeholder="Mot de passe" />
                 <button type="submit">Se connecter</button>
             </form>
             <p>Pas encore inscrit ? Contactez l'administrateur.</p>
-            <div><p id="errorLogin">Message système ici</p></div>
+            <div><p class="error">Message système ici</p></div>
         </section>
     </main>
  
@@ -28,6 +30,6 @@
         <p>Consulting School Project © 2025 Dentilib</p>
     </footer>
  
-    <script src="/js/login.js"></script>
+    <script src="../js/login.js"></script>
 </body>
 </html>

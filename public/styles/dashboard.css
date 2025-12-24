@@ -1,0 +1,131 @@
+/* ===== Layout Dashboard ===== */
+section {
+  background-color: var(--couleur-fond);
+  border-radius: 10px;
+}
+
+/* ===== Bouton création utilisateur ===== */
+
+#createUser:hover {
+  background-color: var(--couleur-principale-survol);
+}
+
+/* ===== Bouton déconnexion ===== */
+.disconnect-div {
+    margin-left: auto;
+}
+
+#disconnect {
+  background-color: var(--couleur-btnDeconnexion);
+  font-weight: 600;
+}
+
+#disconnect:hover {
+  background-color: var(--couleur-btnDeconnexion-survol);
+}
+
+/* ========= Bouton supprimer ========== */
+
+/* Supprimer */
+.delete-user {
+    mask-image: url("/icons/trash.svg");
+    -webkit-mask-image: url("/icons/trash.svg");
+}
+
+.delete-user:hover {
+    background-color: var();
+}
+
+
+/* Modifier */
+.modify-user {
+    mask-image: url("/icons/edit.svg");
+    -webkit-mask-image: url("/icons/edit.svg");
+}
+
+.modify-user:hover {
+    background-color: var(--couleur-principale-survol); 
+}
+
+/* Confirmation suppression */
+.delete-user.btn-confirm {
+    background-color: #ffffff; /* bleu confirmation */
+}
+
+/* ===== Tableau ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  color: var(--couleur-texte);
+}
+
+thead {
+  background-color: var(--couleur-principale);
+}
+
+th, td {
+  text-align: left;
+}
+
+tbody tr {
+  background-color: var(--couleur-fond);
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: var(--couleur-principale-survol);
+}
+
+/* ===== Status utilisateur ===== */
+.status-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  transition: transform 0.2s ease;
+}
+
+/* =========================*/
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: var(--couleur-texte);
+}
+
+.dropdown-input {
+    display: flex;
+    gap: 5px;
+}
+
+.select-wrapper {
+    position: relative;
+    width: 150px;
+}
+
+.select-wrapper select {
+    width: 100%;
+    padding: 5px 25px 5px 10px;
+    font-size: 14px;
+}
+
+.select-wrapper svg {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 5px 10px;
+    font-size: 14px;
+}

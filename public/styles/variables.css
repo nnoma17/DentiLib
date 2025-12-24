@@ -1,28 +1,37 @@
 :root {
-  /* ===== Couleurs ===== */
-  --couleur-principale: #0066cc;
-  --couleur-principale-survol: #0052a3;
+  /* ===================== Typographie ===================== */
+  --police-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  --couleur-texte: #222;
+  /* ===================== Bordures ===================== */
+  --rayon-bordure: 4px;
+
+  /* ===================== Couleurs principales ===================== */
+  --couleur-fond: #0c091b;
+  --couleur-principale: #001d3a;
+  --couleur-principale-survol: #012951;
+  --couleur-secondaire: #ffffff;
+  --couleur-secondaire-survol: #fafafa;
+  --couleur-ombre: #0000009a;
+
+  /* ===================== Boutons ===================== */
+  --couleur-suppression: #990000;
+  --couleur-suppression-survol: #990000;
+
+  /*------ Deconnection -------*/
+  --couleur-btnDeconnexion: #cc1111;
+  --couleur-btnDeconnexion-survol: #990000;
+
+  /* ===================== Texte ===================== */
+  --couleur-texte: #cbcbcb;
   --couleur-texte-secondaire: #666;
 
-  --couleur-fond: #fafafa;
-
+  /* ===================== Tableaux ===================== */
   --couleur-bordure: #ccc;
   --couleur-bordure-claire: #ddd;
   --couleur-fond-entete-table: #f0f0f0;
 
-  /* ===== Typographie ===== */
-  --police-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --taille-texte-base: 16px;
-  --taille-texte-petit: 0.85rem;
-
-  /* ===== Espacements ===== */
-  --espace-xs: 0.3rem;
-  --espace-sm: 0.5rem;
-  --espace-md: 1rem;
-  --espace-lg: 2rem;
-
-  /* ===== Bordures ===== */
-  --rayon-bordure: 4px;
+  /* ===================== Tableaux ===================== */
+  --couleur-fond-input: #8e8e8e;
+  
+  /* ===================== Autres ===================== */
 }

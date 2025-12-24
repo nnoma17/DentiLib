@@ -1,7 +1,7 @@
 const loginForm = document.getElementById("loginForm");
 const emailLogin = document.getElementById("email");
 const passwordLogin = document.getElementById("password");
-const errorLogin = document.getElementById("errorLogin");
+const errorLogin = document.querySelector(".error");
 
 const params = new URLSearchParams(window.location.search)
 token = params.get('token')
@@ -60,12 +60,11 @@ if (loginForm) {
                 // Vérification sécurisée du rôle (avec gestion des majuscules)
                 const role = responseData.role;
                 switch(role) {
-                    case "ADMIN": window.location.href = "./admin/dashboard_admin.html"; break;
-                    case "DENTISTE": window.location.href = "./admin/dashboard_dentiste.html"; break;
-                    case "PROTESISTE": window.location.href = "./admin/dashboard_protesiste.html"; break;
+                    case "ADMIN": window.location.href = "/html/admin/dashboard_admin.html"; break;
+                    case "DENTISTE": window.location.href = "/html/admin/dashboard_dentiste.html"; break;
+                    case "PROTHESISTE": window.location.href = "/html/admin/dashboard_prothesiste.html"; break;
                 }
                 
-            console.log("Réponse :", responseData); //A SUPPRIMER
             } else {
                 errorLogin.textContent = responseData.message;
                 errorLogin.style.display = "block";

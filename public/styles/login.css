@@ -6,20 +6,12 @@
 }
  
 body {
-    background-color: #f0f7f7;
+    background-color: var(--couleur-fond);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
- 
-header {
-    background-color: #1e8bc3;
-    color: white;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
- 
+
 main {
     flex: 1;
     display: flex;
@@ -32,7 +24,7 @@ section {
     background-color: white;
     padding: 2rem 3rem;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px var(--couleur-ombre);
     width: 100%;
     max-width: 400px;
     text-align: center;
@@ -51,20 +43,19 @@ form {
 input {
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1rem;
     transition: border-color 0.3s;
 }
  
 input:focus {
-    border-color: #1e8bc3;
+    border-color: var(--couleur-principale);
     outline: none;
 }
  
 button {
     padding: 0.75rem 1rem;
-    background-color: #1e8bc3;
+    background-color: var(--couleur-principale);
     color: white;
     border: none;
     border-radius: 5px;
@@ -74,24 +65,10 @@ button {
 }
  
 button:hover {
-    background-color: #0f5c7f;
-}
- 
-footer {
-    text-align: center;
-    padding: 1rem;
-    font-size: 0.85rem;
-    color: #666;
-    background-color: #e6f2f2;
-    margin-top: auto;
+    background-color: var(--couleur-principale-survol);
 }
  
 p {
     margin-top: 0.5rem;
     font-size: 0.9rem;
-}
-
-#errorLogin {
-    color: red;
-    display: none;
 }

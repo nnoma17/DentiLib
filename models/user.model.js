@@ -26,13 +26,13 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["ADMIN","DENTISTE","PATIENT"],
+        enum: ["ADMIN","DENTISTE","PROTHESISTE"],
         required: true
     },
     siret:{
         type: Number
     },
-    associadtedUser:{
+    associatedUser:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
