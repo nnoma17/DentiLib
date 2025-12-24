@@ -1,0 +1,32 @@
+name: Tests Cypress
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_test_Cypress:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setpu Node.js
+        uses : actions/setup-node@v3
+
+      - name: Install packages
+        run : npm install
+
+      - name: Run test Cypress
+        run : |
+          node server.js &
+          SERVER_PID=$!
+          
+          npx wait-on http://localhost:3000
+
+          npx cypress run --config "e2e.specPattern=test/e2e/**/*.cy.js"
+
+          kill $SERVER_PID
