@@ -1,77 +1,91 @@
-import { getUsers } from './dashboard.js';
+import { getProcedures } from './procedure.js';
 
+// ==========================
+//  ELEMENTS DOM
+// ==========================
 const modalCreation = document.getElementById("modalCreateProcedure");
 const spanCloseModalCreation = document.getElementById("close-modal-createProcedure");
-const createProcedureFormElement = document.getElementById("createProcedure-form");
 const btnCreateProcedure = document.getElementById("createProcedure");
-const btnAddProcedure    = document.getElementById("btnCreateProcedure");
+
 const formCreateProcedure = document.getElementById("createProcedure-form");
 
-//Champs formulaire
+// Champs formulaire
 const nameInput = document.getElementById("name");
 const descriptionInput = document.getElementById("description");
 const errorMessage = document.getElementById("errorMessage");
 
+// ==========================
+//  CREATION ACTE
+// ==========================
 async function createProcedure() {
     try {
-        const response = await fetch("/api/admin/gestionProcedure/create_Procedure", {
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token"),
-                "Content-Type": "application/json"
-            },
-            method: "POST",
-            body: JSON.stringify({
-                name: nameInput.value,
-                description: descriptionInput.value
-            })
-        });
+        const response = await fetch(
+            "/api/admin/gestionProcedure/create_Procedure",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: nameInput.value.trim(),
+                    description: descriptionInput.value.trim()
+                })
+            }
+        );
+
         const data = await response.json();
-        if (!response.ok){ 
+
+        if (!response.ok) {
             errorMessage.style.display = "block";
-            errorMessage.textContent = data.message;
-        } else{
-            getProcedures();
-            resetForm();
-            //Reset du formulaire
+            errorMessage.textContent = data.message || "Erreur lors de la création";
+            return;
         }
-        
+
+        // Succès
+        getProcedures();
+        resetForm();
+        modalCreation.style.display = "none";
+
     } catch (error) {
-        console.error(error);
+        console.error("Erreur createProcedure :", error);
     }
 }
 
-function resetForm(){
-    // Cacher message d'erreur
+// ==========================
+//  RESET FORM
+// ==========================
+function resetForm() {
     errorMessage.style.display = "none";
     errorMessage.textContent = "";
-
-    // Reinitialiser la liste des dentistes
     formCreateProcedure.reset();
-
 }
 
+// ==========================
+//  EVENTS
+// ==========================
+
 // Ouvrir la modal
-btnCreateProcedure.onclick = function () {
-    errorMessage.style.display = "none";
-    errorMessage.textContent = "";
+btnCreateProcedure.addEventListener("click", () => {
+    resetForm();
     modalCreation.style.display = "flex";
-};
+});
 
 // Fermer via la croix
-spanCloseModalCreation.onclick = function () {
+spanCloseModalCreation.addEventListener("click", () => {
     modalCreation.style.display = "none";
-    formCreateProcedure.reset();
-};
+    resetForm();
+});
 
 // Fermer en cliquant hors modal
 window.addEventListener("click", (event) => {
     if (event.target === modalCreation) {
         modalCreation.style.display = "none";
-        formCreateProcedure.reset();
+        resetForm();
     }
 });
 
-//Validation formulaire
+// Soumission formulaire
 formCreateProcedure.addEventListener("submit", (e) => {
     e.preventDefault();
     createProcedure();

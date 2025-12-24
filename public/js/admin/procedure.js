@@ -1,125 +1,176 @@
-const prodecureTableBody = document.getElementById("procedureTableBody");
-const btnAcceuil = document.getElementById("homePage");
+// ==========================
+//  ELEMENTS DOM
+// ==========================
+const procedureTableBody = document.getElementById("procedureTableBody");
+const btnAccueil = document.getElementById("homePage");
+
 const modalModifyProcedure = document.getElementById("modalModifyProcedure");
 const spanCloseModalModify = document.getElementById("close-modal-modifyPocedure");
 
-//Modal
+// Formulaire modification
 const formModifyProcedure = document.getElementById("modifyProcedure-form");
 const inputName = document.getElementById("modifyName");
 const inputDescription = document.getElementById("modifyDescription");
 
-//Variable globale pour garder l'ID de la dépense à modifier
+// ==========================
+//  VARIABLES
+// ==========================
 let procedureToEditId = null;
 
-async function getProcedures() {
+// ==========================
+//  RECUPERATION DES ACTES
+// ==========================
+export async function getProcedures() {
     try {
-        const response = await fetch("/api/admin/gestionProcedure/get_All_Procedures", {
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
+        const response = await fetch(
+            "/api/admin/gestionProcedure/get_All_Procedures",
+            {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
             }
-        });
-        if (!response.ok) 
-            throw new Error("Erreur lors de la récupération des utilisateurs");
-        
-        let data = await response.json(); // on stocke les users
-        console.log(data);
-        displayProcedures(data.procedures); // affiche tout au départ
+        );
+
+        if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des actes");
+        }
+
+        const data = await response.json();
+        displayProcedures(data.procedures);
+
     } catch (error) {
-        //print dans la console
-        console.error(error);
+        console.error("Erreur getProcedures :", error);
     }
 }
 
-async function displayProcedures(procedures) {
-    prodecureTableBody.innerHTML = "";
-    for(let procedure of procedures){
+// ==========================
+//  AFFICHAGE TABLE
+// ==========================
+function displayProcedures(procedures) {
+    if (!procedureTableBody) return;
+
+    procedureTableBody.innerHTML = "";
+
+    for (const procedure of procedures) {
         const row = document.createElement("tr");
+
         row.innerHTML = `
             <td>${procedure.name || ""}</td>
             <td>${procedure.description || ""}</td>
-            <td><div class="div-button inline-fields" data-user-id="${procedure._id}">
-                <div class = "inline">
-                    <button class ="btn-action modify modify-Prodecure">🖊️</button>
-                    <button class ="btn-action delete delete-Prodecure">🗑️</button>
+            <td>
+                <div class="div-button inline-fields">
+                    <div class="inline">
+                        <button class="btn-action modify modify-procedure"></button>
+                        <button class="btn-action delete delete-procedure"></button>
+                    </div>
                 </div>
-            </div></td>
+            </td>
         `;
-        
-		const deleteBtn = row.querySelector(".delete-Prodecure");
-		deleteBtn.addEventListener("click", () => {
-			deleteProcedure(procedure._id);
-		});
 
-		const modifyBtn = row.querySelector(".modify-Prodecure");
-		modifyBtn.addEventListener("click", () => {
-			inputName.value = procedure.name;
-			inputDescription.value = procedure.description;
-            modalModifyProcedure.style.display = "flex";
+        // --- SUPPRESSION ---
+        const deleteBtn = row.querySelector(".delete-procedure");
+        deleteBtn.addEventListener("click", () => {
+
+            if (!deleteBtn.classList.contains("btn-confirm")) {
+                deleteBtn.classList.add("btn-confirm");
+                clearTimeout(confirmTimeout);
+                confirmTimeout = setTimeout(() => {
+                    deleteBtn.classList.remove("btn-confirm");
+                }, 2000);
+            } else {
+                deleteProcedure(procedure._id);
+            }
+        });
+
+        // --- MODIFICATION ---
+        const modifyBtn = row.querySelector(".modify-procedure");
+        modifyBtn.addEventListener("click", () => {
+            inputName.value = procedure.name;
+            inputDescription.value = procedure.description;
 
             procedureToEditId = procedure._id;
-            
-		});
+            modalModifyProcedure.style.display = "flex";
+        });
 
-        prodecureTableBody.appendChild(row);
+        procedureTableBody.appendChild(row);
     }
 }
 
-async function deleteProcedure(id){
-	await fetch(`/api/admin/gestionProcedure/delete_Procedure/${id}`, {
-		method: "DELETE",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        }
-	});
+// ==========================
+//  SUPPRESSION
+// ==========================
+async function deleteProcedure(id) {
+    try {
+        await fetch(
+            `/api/admin/gestionProcedure/delete_Procedure/${id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                }
+            }
+        );
 
-    getProcedures();
+        getProcedures();
+
+    } catch (error) {
+        console.error("Erreur deleteProcedure :", error);
+    }
 }
 
+// ==========================
+//  MODIFICATION
+// ==========================
 async function modifyProcedure(id) {
     try {
-        const response = await fetch(`/api/admin/gestionProcedure/modify_Procedure/${id}`, {
-            method: "PUT",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token"),
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: inputName.value,
-                description: inputDescription.value
-            })
-        });
+        const response = await fetch(
+            `/api/admin/gestionProcedure/modify_Procedure/${id}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: inputName.value.trim(),
+                    description: inputDescription.value.trim()
+                })
+            }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
             alert(data.message || "Erreur lors de la modification de l'acte");
-        } else {
-            // Masquer la modal
-            modalModifyProcedure.style.display = "none";
-            // Recharger la liste des procédures
-            getProcedures();
+            return;
         }
+
+        modalModifyProcedure.style.display = "none";
+        formModifyProcedure.reset();
+        getProcedures();
+
     } catch (error) {
         console.error("Erreur modifyProcedure :", error);
     }
 }
 
-//Chargement données 1ere fois
+// ==========================
+//  EVENTS
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     getProcedures();
-    //loadUserInfo();
 });
 
-btnAcceuil.addEventListener("click", () => {
-    window.location.href = "./dashboard_Admin.html";
-});
+if (btnAccueil) {
+    btnAccueil.addEventListener("click", () => {
+        window.location.href = "./dashboard_Admin.html";
+    });
+}
 
-// Fermer via la croix
-spanCloseModalModify.onclick = function () {
+spanCloseModalModify.onclick = () => {
     modalModifyProcedure.style.display = "none";
 };
 
-// Fermer en cliquant hors modal
 window.addEventListener("click", (event) => {
     if (event.target === modalModifyProcedure) {
         modalModifyProcedure.style.display = "none";
@@ -127,8 +178,10 @@ window.addEventListener("click", (event) => {
     }
 });
 
-//Validation formulaire
 formModifyProcedure.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    if (!procedureToEditId) return;
+
     modifyProcedure(procedureToEditId);
-})
+});
