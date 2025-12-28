@@ -22,7 +22,7 @@ jobs:
 
       - name: Run test Cypress
         env:
-          DB_URL: ${{ secrets.DB_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
