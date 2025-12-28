@@ -1,0 +1,37 @@
+name: Tests Cypress
+
+on:
+  push:
+    branches: [main, test]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_test_Cypress:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install packages
+        run: npm install
+
+      - name: Run test Cypress
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          node server.js &
+          SERVER_PID=$!
+          
+          npx wait-on http://localhost:3000
+
+          npx cypress run --config "e2e.specPattern=test/e2e/**/*.cy.js"
+
+          kill $SERVER_PID

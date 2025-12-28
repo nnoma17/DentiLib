@@ -1,0 +1,37 @@
+name: Tests API Postman
+
+on:
+  push:
+    branches: [main, test]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install packages
+        run: npm install
+
+      - name: Run server
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          node server.js &
+          SERVER_PID=$!
+          npx wait-on http://localhost:3000
+          echo "Server is ready"
+          
+          npm run test:newman
+          
+          kill $SERVER_PID

@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b847c6d1-4b86-4239-851d-f6164489df23",
-		"name": "dentilib",
+		"_postman_id": "50bfb5f5-fce2-4317-8a23-10daffcaa779",
+		"name": "dentilib_testAuto",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47035563",
-		"_collection_link": "https://spaceflight-physicist-84138738-1543995.postman.co/workspace/Manon's-Team's-Workspace~c252c3d6-f954-4fb0-8663-a5fc33487613/collection/47035563-b847c6d1-4b86-4239-851d-f6164489df23?action=share&source=collection_link&creator=47035563"
+		"_collection_link": "https://spaceflight-physicist-84138738-1543995.postman.co/workspace/Manon's-Team's-Workspace~c252c3d6-f954-4fb0-8663-a5fc33487613/collection/47035563-50bfb5f5-fce2-4317-8a23-10daffcaa779?action=share&source=collection_link&creator=47035563"
 	},
 	"item": [
 		{
@@ -94,13 +94,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL}}/api/user/create_Admin",
+					"raw": "{{BASE_URL}}/api/admin/create_Admin",
 					"host": [
 						"{{BASE_URL}}"
 					],
 					"path": [
 						"api",
-						"user",
+						"admin",
 						"create_Admin"
 					]
 				}

@@ -1,2 +1,5 @@
 node_modules/
 .env
+
+#Génération des rapports de tests
+tests/api/report.html
