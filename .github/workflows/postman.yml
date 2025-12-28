@@ -1,4 +1,4 @@
-name: Tests Cypress
+name: Tests API Postman
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build_test_Cypress:
+  build_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
       - name: Install packages
         run: npm install
 
-      - name: Run test Cypress
+      - name: Run server
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -29,9 +29,11 @@ jobs:
         run: |
           node server.js &
           SERVER_PID=$!
-          
           npx wait-on http://localhost:3000
+          echo "Server is ready"
 
-          npx cypress run --config "e2e.specPattern=test/e2e/**/*.cy.js"
+      - name: Run Postman API tests
+        run: npm run test:newman
 
-          kill $SERVER_PID
+      - name: Stop server
+        run: kill $SERVER_PID

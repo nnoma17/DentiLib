@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "test:newman": "newman run \"./tests/api/dentilib_testAuto.postman_collection.json\" -e \"./tests/api/dentilib-backend.postman_environment.json\" -r htmlextra --reporter-htmlextra-export  tests/api/report.html --iteration-data \"./tests/api/jeuxDonnes.json\""
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.1",
+    "newman": "^6.2.1",
     "newman-reporter-htmlextra": "^1.23.1",
     "nodemailer": "^7.0.12",
     "nodemon": "^3.1.11",
