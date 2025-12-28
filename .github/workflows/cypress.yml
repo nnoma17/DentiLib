@@ -27,6 +27,7 @@ jobs:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
+          echo "MONGO_URI=${MONGO_URI}"
           node server.js &
           SERVER_PID=$!
           
