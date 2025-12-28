@@ -27,6 +27,12 @@ jobs:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
+          if [ -z "$MONGO_URI" ]; then
+            echo "Secret MONGO_URI vide !"
+            exit 1
+          else
+            echo "Secret MONGO_URI OK"
+          fi
           echo "MONGO_URI=${MONGO_URI}"
           node server.js &
           SERVER_PID=$!
