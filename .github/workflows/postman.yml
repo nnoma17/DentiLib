@@ -31,9 +31,7 @@ jobs:
           SERVER_PID=$!
           npx wait-on http://localhost:3000
           echo "Server is ready"
-
-      - name: Run Postman API tests
-        run: npm run test:newman
-
-      - name: Stop server
-        run: kill $SERVER_PID
+          
+          npm run test:newman
+          
+          kill $SERVER_PID
