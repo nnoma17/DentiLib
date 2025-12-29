@@ -86,12 +86,7 @@ async function displayUsers(users) {
 
     for (const user of users) {
 
-        const associatedUser =
-            user.role === "PROTHESISTE"
-                ? "-"
-                : user.associatedUser
-                    ? await getUserById(user.associatedUser)
-                    : "-";
+        const associatedUser = user.associatedUser ? await getUserById(user.associatedUser) : "-";
 
         const row = document.createElement("tr");
 

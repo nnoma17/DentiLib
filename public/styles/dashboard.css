@@ -27,26 +27,50 @@ section {
 /* ========= Bouton supprimer ========== */
 
 /* Supprimer */
-.delete-user {
+.delete {
     mask-image: url("/icons/trash.svg");
     -webkit-mask-image: url("/icons/trash.svg");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: var(--couleur-suppression);
+    color: var(--couleur-suppression);
 }
 
-.delete-user:hover {
-    background-color: var();
+.delete:hover {
+    background-color: var(--couleur-suppression-survol);
+}
+
+.btn-confirm {
+    mask-image: url("/icons/confirm.svg");
+    -webkit-mask-image: url("/icons/confirm.svg");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: var(--couleur-suppression);
+    width: auto;
+    mask-image: none;
+}
+
+.btn-confirm {
+    background-color: var(--couleur-suppression);
+    background-image: url("/icons/confirm.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
 }
 
 
 /* Modifier */
-.modify-user {
+.modify {
     mask-image: url("/icons/edit.svg");
     -webkit-mask-image: url("/icons/edit.svg");
 }
 
-.modify-user:hover {
+.modify:hover {
     background-color: var(--couleur-principale-survol); 
 }
-
 
 /* ===== Tableau ===== */
 table {
@@ -70,7 +94,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: var(--couleur-principale-survol);
+  background-color: var(--couleur-survol-ligne-tab);
 }
 
 /* ===== Status utilisateur ===== */
