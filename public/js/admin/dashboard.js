@@ -86,8 +86,16 @@ async function displayUsers(users) {
 
     for (const user of users) {
 
-        const associatedUser = user.associatedUser ? await getUserById(user.associatedUser) : "-";
+        let associatedUser = "-";
 
+        if (user.associatedUser) {
+            try {
+                const result = await getUserById(user.associatedUser);
+                associatedUser = result ? result : "-";
+            } catch (e) {
+                associatedUser = "-";
+            }
+        }
         const row = document.createElement("tr");
 
         row.innerHTML = `
