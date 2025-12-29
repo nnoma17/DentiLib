@@ -6,12 +6,12 @@
   --rayon-bordure: 4px;
 
   /* ===================== Couleurs principales ===================== */
-  --couleur-fond: #0c091b;
-  --couleur-principale: #001d3a;
-  --couleur-principale-survol: #012951;
-  --couleur-secondaire: #ffffff;
-  --couleur-secondaire-survol: #fafafa;
-  --couleur-ombre: #0000009a;
+  --couleur-fond: #3f3f3f;
+  --couleur-principale: #0c6dce;
+  --couleur-principale-survol: #083664;
+  
+  /* ------ Texte -----*/
+  --couleur-texte: #e7e7e7;
 
   /* ===================== Boutons ===================== */
   --couleur-suppression: #990000;
@@ -21,17 +21,18 @@
   --couleur-btnDeconnexion: #cc1111;
   --couleur-btnDeconnexion-survol: #990000;
 
-  /* ===================== Texte ===================== */
-  --couleur-texte: #cbcbcb;
-  --couleur-texte-secondaire: #666;
-
   /* ===================== Tableaux ===================== */
   --couleur-bordure: #ccc;
   --couleur-bordure-claire: #ddd;
   --couleur-fond-entete-table: #f0f0f0;
 
-  /* ===================== Tableaux ===================== */
-  --couleur-fond-input: #8e8e8e;
+  --couleur-survol-ligne-tab: #525252;
+
+  /* ===================== Input ===================== */
+  --couleur-fond-input: #e2e2e2;
   
   /* ===================== Autres ===================== */
+  --couleur-secondaire: #ffffff;
+  --couleur-secondaire-survol: #fafafa;
+  --couleur-ombre: #0000009a;
 }

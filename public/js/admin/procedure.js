@@ -1,6 +1,3 @@
-// ==========================
-//  ELEMENTS DOM
-// ==========================
 const procedureTableBody = document.getElementById("procedureTableBody");
 const btnAccueil = document.getElementById("homePage");
 
@@ -12,14 +9,9 @@ const formModifyProcedure = document.getElementById("modifyProcedure-form");
 const inputName = document.getElementById("modifyName");
 const inputDescription = document.getElementById("modifyDescription");
 
-// ==========================
-//  VARIABLES
-// ==========================
 let procedureToEditId = null;
+let confirmTimeout;
 
-// ==========================
-//  RECUPERATION DES ACTES
-// ==========================
 export async function getProcedures() {
     try {
         const response = await fetch(
@@ -43,9 +35,6 @@ export async function getProcedures() {
     }
 }
 
-// ==========================
-//  AFFICHAGE TABLE
-// ==========================
 function displayProcedures(procedures) {
     if (!procedureTableBody) return;
 
@@ -60,8 +49,9 @@ function displayProcedures(procedures) {
             <td>
                 <div class="div-button inline-fields">
                     <div class="inline">
-                        <button class="btn-action modify modify-procedure"></button>
-                        <button class="btn-action delete delete-procedure"></button>
+                        <button class="btn-action modify modify-procedure" data-tooltip="Modifier"></button>
+                        <button class="btn-action delete delete-procedure" data-tooltip="Supprimer"></button>
+                    
                     </div>
                 </div>
             </td>
@@ -96,9 +86,6 @@ function displayProcedures(procedures) {
     }
 }
 
-// ==========================
-//  SUPPRESSION
-// ==========================
 async function deleteProcedure(id) {
     try {
         await fetch(
@@ -118,9 +105,6 @@ async function deleteProcedure(id) {
     }
 }
 
-// ==========================
-//  MODIFICATION
-// ==========================
 async function modifyProcedure(id) {
     try {
         const response = await fetch(
@@ -154,9 +138,6 @@ async function modifyProcedure(id) {
     }
 }
 
-// ==========================
-//  EVENTS
-// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     getProcedures();
 });
