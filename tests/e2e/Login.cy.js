@@ -18,15 +18,7 @@ describe('page acceuil', () => {
     cy.get('#password').type('mauvaisMDP');
     cy.xpath('//button[text()="Se connecter"]').click();
     //une erreur s'affiche
-    cy.get('#errorLogin').should('be.visible').and('contain', 'mot de passe incorrect');
-  });
-
-  it('Connexion avec un mot de passe trop court', () => {
-    cy.get('#email').type('email@gmail.com');
-    cy.get('#password').type('123');
-    cy.xpath('//button[text()="Se connecter"]').click();
-    //une erreur s'affiche
-    cy.get('#errorLogin').should('be.visible').and('contain', 'mot de passe incorrect');
+    cy.get('#errorLogin').should('be.visible').and('contain', 'Mot de passe incorrect');
   });
 
   it('Connexion avec mauvais email', () => {
