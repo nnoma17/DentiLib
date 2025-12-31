@@ -27,5 +27,11 @@ jobs:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
-          npx wait-on https://dentilib-5sk3.onrender.com
+          node server.js &
+          SERVER_PID=$!
+          
+          npx wait-on http://localhost:3000
+
           npx cypress run --config "e2e.specPattern=test/e2e/**/*.cy.js"
+
+          kill $SERVER_PID
