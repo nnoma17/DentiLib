@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
-
 const app = express();
 
+// Middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public'))); // Chemin absolu pour les fichiers statiques
 
 // Routes
 const userRoutes = require('./routes/userAuth.route');  
@@ -21,8 +22,15 @@ app.use('/api', gestionWorksheetD);
 app.use('/api', gestionWorksheetP);
 app.use('/api', gestionCatalogue);
 
+// Route principale
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/html/login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
 });
 
-module.exports = app;
+// Démarrage serveur toujours actif
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+
+module.exports = app; // Toujours exporter app pour les tests
