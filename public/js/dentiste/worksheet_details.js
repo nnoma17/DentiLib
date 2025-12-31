@@ -7,6 +7,8 @@ const numSecuInput = document.getElementById("numSecuPatient");
 const commentInput = document.getElementById("commentProcedure");
 const procedureTableBody = document.getElementById("worksheetTableBody");
 
+const btnValidate = document.getElementById("validationWorksheet");
+
 const modifyBtn = document.getElementById("modifyWorksheet");
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -61,7 +63,6 @@ async function loadWorksheet(id) {
         allProcedures.forEach(procedure => {
             const procDoc = procedure.acte;
 
-            // ✅ comparaison fiable
             const isChecked = worksheetActeNames.includes(
                 procDoc.name.trim().toLowerCase()
             );
@@ -142,5 +143,33 @@ modifyBtn.addEventListener("click", async e => {
     } catch (err) {
         console.error("Erreur updateWorksheet :", err);
         alert("Erreur serveur lors de la modification");
+    }
+});
+
+btnValidate.addEventListener("click", async e => {
+    e.preventDefault();
+    try {
+        const response = await fetch(`/api/admin/gestionWorksheet/update_status/${worksheetId}`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ status: "En attente" })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || "Erreur lors de la validation");
+            return;
+        }
+
+        alert("Worksheet créée et envoyée au prothésiste !");l
+        window.location.href = "dashboard_dentiste.html";
+
+    } catch (err) {
+        console.error("Erreur validateAndSendWorksheet:", err);
+        alert("Erreur serveur lors de l'envoi");
     }
 });

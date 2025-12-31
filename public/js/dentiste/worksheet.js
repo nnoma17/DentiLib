@@ -10,7 +10,7 @@ const numSecuInput = document.getElementById("numSecuPatient");
 const commentInput = document.getElementById("commentProcedure");
 const procedureTableBody = document.getElementById("worksheetTableBody");
 
-const btnValidate = document.getElementById("validationWorksheet");
+const btnValidateCreate = document.getElementById("validationCreateWorksheet");
 
 // ===========================
 // Charger les procédures du prothésiste associé
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUserInfo();
 });
 
-btnValidate.addEventListener("click", async e => {
+btnValidateCreate.addEventListener("click", async e => {
     e.preventDefault();
 
     const worksheet = await createWorksheet(); // option pour ne pas modifier le status
