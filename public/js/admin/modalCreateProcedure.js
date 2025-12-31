@@ -1,8 +1,5 @@
 import { getProcedures } from './procedure.js';
 
-// ==========================
-//  ELEMENTS DOM
-// ==========================
 const modalCreation = document.getElementById("modalCreateProcedure");
 const spanCloseModalCreation = document.getElementById("close-modal-createProcedure");
 const btnCreateProcedure = document.getElementById("createProcedure");
@@ -14,27 +11,27 @@ const nameInput = document.getElementById("name");
 const descriptionInput = document.getElementById("description");
 const errorMessage = document.getElementById("errorMessage");
 
-// ==========================
-//  CREATION ACTE
-// ==========================
 async function createProcedure() {
     try {
-        const response = await fetch(
-            "/api/admin/gestionProcedure/create_Procedure",
-            {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token"),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name: nameInput.value.trim(),
-                    description: descriptionInput.value.trim()
-                })
-            }
-        );
+        const response = await fetch("/api/admin/gestionProcedure/create_Procedure", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token"),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: nameInput.value.trim(),
+                description: descriptionInput.value.trim()
+            })
+        });
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (err) {
+            console.error("Réponse non JSON :", await response.text());
+            throw new Error("Le serveur n'a pas renvoyé un JSON valide");
+        }
 
         if (!response.ok) {
             errorMessage.style.display = "block";
@@ -49,21 +46,17 @@ async function createProcedure() {
 
     } catch (error) {
         console.error("Erreur createProcedure :", error);
+        errorMessage.style.display = "block";
+        errorMessage.textContent = error.message;
     }
 }
 
-// ==========================
-//  RESET FORM
-// ==========================
+
 function resetForm() {
     errorMessage.style.display = "none";
     errorMessage.textContent = "";
     formCreateProcedure.reset();
 }
-
-// ==========================
-//  EVENTS
-// ==========================
 
 // Ouvrir la modal
 btnCreateProcedure.addEventListener("click", () => {

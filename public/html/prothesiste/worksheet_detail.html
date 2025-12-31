@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détail fiche patient - Dentilib</title>
+    <link rel="stylesheet" href="../../styles/variables.css" />
+    <link rel="stylesheet" href="../../styles/base.css" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+</head>
+<body>
+    <header>
+        <div class="inline-fields">
+            <div class="inline">
+                <h2 id="TitleNameUser"></h2>
+                <div class="disconnect-div">
+                    <button id="homePage">Page d'accueil</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Détail fiche patient</h1>
+
+        <form id="worksheetDetailForm">
+            <section name="patientInfo">
+                <label>Prénom</label>
+                <input type="text" id="firstNamePatient" disabled>
+
+                <label>Nom</label>
+                <input type="text" id="lastNamePatient" disabled>
+
+                <label>Email</label>
+                <input type="email" id="emailNamePatient" disabled>
+
+                <label>Numéro sécurité sociale</label>
+                <input type="text" id="numSecuPatient" disabled>
+            </section>
+
+            <section name="procedure">
+                <label>Actes</label>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><!-- Case à cocher --></th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody id="worksheetTableBody"></tbody>
+                </table>
+            </section>
+
+            <section name="comment">
+                <label>Remarque</label>
+                <input type="text" id="commentProcedure" disabled>
+            </section>
+
+            <section name="status">
+                <label>Statut</label>
+                <select id="statusSelect">
+                    <option value="En attente">En attente</option>
+                    <option value="En cours">En cours</option>
+                    <option value="Termine">Terminé</option>
+                </select>
+            </section>
+
+            <section name="validation">
+                <button type="button" id="saveStatusBtn">Enregistrer le statut</button>
+            </section>
+        </form>
+    </main>
+
+    <footer>
+        <p>Consulting School Project © 2025 Dentilib</p>
+    </footer>
+
+    <script type="module" src="/js/prothesiste/worksheet_details.js"></script>
+</body>
+</html>

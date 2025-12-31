@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
         {
             acte: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Acte'
+                ref: 'Procedure'
             },
             price: {
                 type: Number,

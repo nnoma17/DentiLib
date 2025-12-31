@@ -61,8 +61,8 @@ if (loginForm) {
                 const role = responseData.role;
                 switch(role) {
                     case "ADMIN": window.location.href = "/html/admin/dashboard_admin.html"; break;
-                    case "DENTISTE": window.location.href = "/html/admin/dashboard_dentiste.html"; break;
-                    case "PROTHESISTE": window.location.href = "/html/admin/dashboard_prothesiste.html"; break;
+                    case "DENTISTE": window.location.href = "/html/dentiste/dashboard_dentiste.html"; break;
+                    case "PROTHESISTE": window.location.href = "/html/prothesiste/dashboard_prothesiste.html"; break;
                 }
                 
             } else {
