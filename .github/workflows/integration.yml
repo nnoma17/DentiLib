@@ -2,7 +2,7 @@ name: Tests Integration jest
 
 on:
   push:
-    branches: [main, test]
+    branches: [main, test, test-integration]
   pull_request:
     branches: [main]
 
