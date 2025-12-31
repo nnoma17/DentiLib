@@ -127,7 +127,7 @@
 							"    }\r",
 							"    if (statusCode === 401) {\r",
 							"        pm.test(\"Check if error  Message is correct\", function () {\r",
-							"            pm.expect(reponse.message).to.eql(\"mot de passe incorrect\");\r",
+							"            pm.expect(reponse.message).to.eql(\"Mot de passe incorrect\");\r",
 							"        })\r",
 							"    }\r",
 							"} else {\r",
