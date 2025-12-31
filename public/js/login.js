@@ -41,7 +41,7 @@ if (loginForm) {
 
         try {
             //On peut ajouter http://localhost:3000 mais ce n'est pas obligatoire si le front et le back sont sur le même serveur 
-            const res = await fetch("http://localhost:3000/api/user/login_User", { 
+            const res = await fetch("/api/user/login_User", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
