@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Dentiste - Dentilib</title>
+    <link rel="stylesheet" href="../../styles/variables.css" />
+    <link rel="stylesheet" href="../../styles/base.css" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+</head>
+<body>
+    <header>
+        <div class="inline-fields">
+            <div class="inline">
+                <h2 id="TitleNameUser"></h2>
+                <div class="disconnect-div">
+                    <button id="disconnect">Se déconnecter</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <button id="catalogProcedure">Gérer catalogue acte</button>
+        </section>
+
+        <section>
+            <div class="filters">
+                <input type="text" id="filter-patient-name" placeholder="Filtrer par nom patient">
+                <select id="filter-status">
+                    <option value="ALL" selected>Tous</option>
+                </select>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Patient</th>
+                        <th>Email</th>
+                        <th>Numéro sécurité</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="worksheetTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>Consulting School Project © 2025 Dentilib</p>
+    </footer>
+
+    <script type="module" src="/js/prothesiste/dashboard.js"></script>
+</body>
+</html>

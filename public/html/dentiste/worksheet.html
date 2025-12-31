@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Créer une fiche - Dentilib</title>
+        <link rel="stylesheet" href="../../styles/variables.css" />
+        <link rel="stylesheet" href="../../styles/base.css" />
+        <link rel="stylesheet" href="../../styles/dashboard.css" />
+    </head>
+    <body>
+        <header>
+            <div class="inline-fields">
+                <div class="inline">
+                    <h2 id="TitleNameUser"></h2>
+                    <div class="disconnect-div">
+                    <button id="homePage" allerVers="./dashboard_dentiste.html">Page d'acceuil</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+    <h1>Créer une fiche patient</h1>
+
+    <form id="worksheetCreateForm">
+        <section name = "patientInfo">
+            <label>Prénom</label>
+            <input type="text" id="firstNamePatient" required>
+
+            <label>Nom</label>
+            <input type="text" id="lastNamePatient" required>
+
+            <label>Email</label>
+            <input type="email" id="emailNamePatient" required>
+
+            <label>Numéro sécurité sociale</label>
+            <input type="text" id="numSecuPatient" required>
+        </section>
+        <section name = "procedure">
+            <label>Actes</label>
+            <table>
+                <thead>
+                    <tr>
+                        <th><!-- Case à cocher --></th> 
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Prix</th>
+                    </tr>
+                </thead>
+                <tbody id="worksheetTableBody">
+                </tbody>
+            </table>
+        </section>
+        <section name = "comment">
+            <label>Remarque</label>
+            <input type="text" id="commentProcedure">
+        </section>
+
+        <button type="submit">Créer la fiche</button>
+        <button id="validationWorksheet">Valider et Envoyer</button>
+    </form>
+
+
+        <footer>
+            <p>Consulting School Project © 2025 Dentilib</p>
+        </footer>
+
+    <script type="module" src="/js/dentiste/worksheet.js"></script>
+    </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalogue actes - Prothésiste</title>
+    <link rel="stylesheet" href="../../styles/variables.css" />
+    <link rel="stylesheet" href="../../styles/base.css" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+</head>
+<body>
+    <header>
+        <div class="inline-fields">
+            <div class="inline">
+                <h2 id="TitleNameUser"></h2>
+                <div class="disconnect-div">
+                    <button id="homePage">Page d'accueil</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Catalogue des actes</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Prix</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="procedureTableBody">
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>Consulting School Project © 2025 Dentilib</p>
+    </footer>
+
+    <script type="module" src="/js/prothesiste/catalogue_procedure.js"></script>
+</body>
+</html>

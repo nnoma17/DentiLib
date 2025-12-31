@@ -6,12 +6,12 @@ const workSheetSchema = new mongoose.Schema({
         required: true
     },
     comment: {
-        type: Text
+        type: String
     },
     status: {
         type: String,
         required: true,
-        enum: ["En attente","En cours", "Termine"]
+        enum: ["A valider","En attente","En cours", "Termine"]
     },
     procedure:[
         {
@@ -45,8 +45,7 @@ const workSheetSchema = new mongoose.Schema({
     },
     invoicePDF: {
         type: String,
-        trim: true,
-        required: true
+        trim: true
     },
     idDentist: {
         type: mongoose.Schema.Types.ObjectId,
@@ -60,5 +59,5 @@ const workSheetSchema = new mongoose.Schema({
     }
 );
 
-const WorkSheet = mongoose.model('Catalogue', workSheetSchema);
+const WorkSheet = mongoose.model('WorkSheet', workSheetSchema);
 module.exports = WorkSheet;
