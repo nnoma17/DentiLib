@@ -2,7 +2,7 @@ require('cypress-xpath');
 
 describe('page acceuil', () => {
   beforeEach( () => {
-    cy.visit("http://localhost:3000");
+    cy.visit("https://dentilib-5sk3.onrender.com/");
   });
 
   it('Connexion OK', () => {
