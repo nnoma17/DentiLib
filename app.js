@@ -1,11 +1,15 @@
-require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
+
 const app = express();
 
-// Middleware
+// Middleware CORS
+app.use(cors()); // Autorise toutes les origines, utile pour dev local
+// Pour restreindre, tu peux faire : app.use(cors({ origin: 'http://localhost:5173' }));
+
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Chemin absolu pour les fichiers statiques
+app.use(express.static('public'));
 
 // Routes
 const userRoutes = require('./routes/userAuth.route');  
@@ -22,15 +26,8 @@ app.use('/api', gestionWorksheetD);
 app.use('/api', gestionWorksheetP);
 app.use('/api', gestionCatalogue);
 
-// Route principale
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public/html/login.html'));
 });
 
-// Démarrage serveur toujours actif
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
-
-module.exports = app; // Toujours exporter app pour les tests
+module.exports = app;
