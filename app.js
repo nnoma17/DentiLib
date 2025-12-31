@@ -1,3 +1,4 @@
+// app.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -5,8 +6,24 @@ const path = require('path');
 const app = express();
 
 // Middleware CORS
-app.use(cors()); // Autorise toutes les origines, utile pour dev local
-// Pour restreindre, tu peux faire : app.use(cors({ origin: 'http://localhost:5173' }));
+const allowedOrigins = [
+    'http://localhost:3000', // Dev local
+    'https://dentilib-5sk3.onrender.com' // Front prod Render
+];
+
+app.use(cors({
+    origin: function(origin, callback){
+        // Autoriser requêtes sans origin (ex : Postman)
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) === -1){
+            const msg = `CORS non autorisé pour ${origin}`;
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    methods: ['GET','POST','PUT','DELETE'],
+    credentials: true
+}));
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -26,6 +43,7 @@ app.use('/api', gestionWorksheetD);
 app.use('/api', gestionWorksheetP);
 app.use('/api', gestionCatalogue);
 
+// Page d'accueil
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html/login.html'));
 });
