@@ -11,4 +11,15 @@ describe('page acceuil', () => {
     cy.url().should('include', '/admin/dashboard_admin.html');
   });
 
+  
+  it('Creer un dentiste', () => {
+  });
+
+  
+  it('Creer un prothesiste', () => {
+  });
+  
+  it('Creer un prothesiste non lié à un dentiste', () => {
+  });
+
 });
