@@ -55,9 +55,9 @@ const createWorksheet = async (req, res) => {
   }
 };
 
-/* ===========================
-   METTRE À JOUR LE STATUT
-=========================== */
+//-----------------------------
+//   Modifier le statut
+//-------------------------------
 const updateStatus = async (req, res) => {
   try {
     const { worksheetId } = req.params;
@@ -93,9 +93,9 @@ const updateStatus = async (req, res) => {
   }
 };
 
-/* ===========================
-   AUTRES FONCTIONS (inchangées)
-=========================== */
+//--------------------------------
+// toutes les fiches
+//--------------------------------
 const getAllWorksheets = async (req, res) => {
   try {
     const worksheets = await WorkSheet.find()
