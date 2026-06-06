@@ -7,16 +7,9 @@ const filterStatusSelect = document.getElementById("filter-status");
 
 let allWorksheets = [];
 
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-    fetchAndDisplayWorksheets();
-});
-
-/* =========================
-   FETCH WORKSHEETS ASSOCIÉS
-========================= */
+//------------------------------------
+//  Recuperer la liste de ces fiches
+//------------------------------------
 async function fetchAndDisplayWorksheets() {
     try {
         const response = await fetch("/api/worksheet/associated", {
@@ -48,9 +41,9 @@ async function fetchAndDisplayWorksheets() {
     }
 }
 
-/* =========================
-   AFFICHAGE TABLE
-========================= */
+//--------------------------
+//    Affiche les actes
+//--------------------------
 function displayWorksheets(worksheets) {
     worksheetTableBody.innerHTML = "";
 
@@ -85,9 +78,6 @@ function displayWorksheets(worksheets) {
     });
 }
 
-/* =========================
-   FILTRES
-========================= */
 function applyFilters() {
     const nameFilter = filterPatientNameInput.value.trim().toLowerCase();
     const statusFilter = filterStatusSelect.value;
@@ -105,12 +95,10 @@ function applyFilters() {
     displayWorksheets(filtered);
 }
 
-filterPatientNameInput.addEventListener("input", applyFilters);
-filterStatusSelect.addEventListener("change", applyFilters);
 
-/* =========================
-   STATUTS
-========================= */
+//--------------------------
+//   STATUTS
+//--------------------------
 function populateStatusFilter(worksheets) {
     const statuses = [...new Set(worksheets.map(ws => ws.status))];
 
@@ -125,17 +113,18 @@ function populateStatusFilter(worksheets) {
     });
 }
 
-/* =========================
-   NAVIGATION
-========================= */
+//--------------------------
+//  EventListener
+//--------------------------
 catalogProcedureBtn.addEventListener("click", () => {
     window.location.href =
         "/html/prothesiste/catalogue_procedure.html";
 });
 
-/* =========================
-   DÉCONNEXION
-========================= */
+filterPatientNameInput.addEventListener("input", applyFilters);
+
+filterStatusSelect.addEventListener("change", applyFilters);
+
 disconnectBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
     window.location.href = "../login.html";

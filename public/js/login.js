@@ -41,10 +41,9 @@ if (loginForm) {
 
         try {
             const API_BASE_URL = window.location.hostname.includes("localhost")
-                ? "http://localhost:3000/api"
-                : "https://dentilib-5sk3.onrender.com/api";
+                ? "http://localhost:3000"
+                : "https://dentilib-5sk3.onrender.com";
 
-            //On peut ajouter http://localhost:3000 mais ce n'est pas obligatoire si le front et le back sont sur le même serveur 
             const res = await fetch(`${API_BASE_URL}/api/user/login_User`, { 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -55,7 +54,6 @@ if (loginForm) {
             });
 
             const responseData = await res.json();
-            console.log("Réponse :", responseData); //A SUPPRIMER
 
             if (res.ok && responseData.token) {
                 // Stockage du token

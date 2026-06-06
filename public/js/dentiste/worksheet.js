@@ -9,33 +9,46 @@ const emailInput = document.getElementById("emailNamePatient");
 const numSecuInput = document.getElementById("numSecuPatient");
 const commentInput = document.getElementById("commentProcedure");
 const procedureTableBody = document.getElementById("worksheetTableBody");
-
 const btnValidateCreate = document.getElementById("validationCreateWorksheet");
+const errorForm = document.getElementById("errorForm");
 
-// ===========================
-// Charger les procédures du prothésiste associé
-// ===========================
+//----------------------
+// Gestion des erreurs
+//----------------------
+function updateError(message) {
+    if (!errorForm) return;
+    errorForm.textContent = message;
+    errorForm.style.display = "block";
+}
+
+function clearError() {
+    if (!errorForm) return;
+    errorForm.textContent = "";
+    errorForm.style.display = "none";
+}
+
+//----------------------------------------------------
+//  Afficher la liste des actes du protésiste associé
+//----------------------------------------------------
 async function loadProthesistProcedure() {
+    if (!procedureTableBody) return;
+
     try {
         const response = await fetch("/api/dentiste/getAssociatedProthesist", {
-            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
         });
 
         const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
 
-        console.log("Réponse brute du serveur :", data); // <- IMPORTANT pour debug
-
-        if (!response.ok) {
-            throw new Error(data.message || "Erreur lors de la récupération du prothésiste");
-        }
-
-        const procedures = data.prothesist.listeActes || [];
+        const procedures = data.prothesist?.listeActes || [];
         procedureTableBody.innerHTML = "";
 
         if (procedures.length === 0) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td colspan="4" style="text-align:center;">Aucune procédure disponible</td>`;
-            procedureTableBody.appendChild(tr);
+            procedureTableBody.innerHTML =
+                `<tr><td colspan="4" style="text-align:center;">Aucune procédure disponible</td></tr>`;
             return;
         }
 
@@ -44,10 +57,11 @@ async function loadProthesistProcedure() {
             const tr = document.createElement("tr");
 
             tr.innerHTML = `
-                <td><input type="checkbox"
-                    data-name="${procDoc.name}"
-                    data-description="${procDoc.description}"
-                    data-price="${actItem.price || 0}">
+                <td>
+                    <input type="checkbox"
+                        data-name="${procDoc.name}"
+                        data-description="${procDoc.description}"
+                        data-price="${actItem.price || 0}">
                 </td>
                 <td>${procDoc.name}</td>
                 <td>${procDoc.description}</td>
@@ -58,47 +72,45 @@ async function loadProthesistProcedure() {
         });
 
     } catch (err) {
-        console.error("Erreur loadProthesistProcedure :", err);
-        procedureTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">Erreur lors du chargement des procédures</td></tr>`;
+        console.error(err);
+        updateError("Erreur lors du chargement des procédures");
     }
 }
 
-
-// ===========================
-// Récupérer les procédures sélectionnées
-// ===========================
+//--------------------------
+//   Liste des actes choisis
+//--------------------------
 function getSelectedProcedures() {
-    const procedures = [];
-    const rows = procedureTableBody.querySelectorAll("tr");
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector("input[type='checkbox']");
-        if (checkbox && checkbox.checked) {
-            procedures.push({
-                name: checkbox.dataset.name,
-                description: checkbox.dataset.description,
-                price: Number(checkbox.dataset.price)
-            });
-        }
-    });
-
-    return procedures;
+    if (!procedureTableBody) return [];
+    return [...procedureTableBody.querySelectorAll("input[type='checkbox']:checked")]
+        .map(cb => ({
+            name: cb.dataset.name,
+            description: cb.dataset.description,
+            price: Number(cb.dataset.price)
+        }));
 }
 
-// ===========================
-// Créer la fiche worksheet
-// ===========================
+//----------------------
+//  Création fiche
+//----------------------
 async function createWorksheet() {
-    const firstName = firstNameInput.value.trim();
-    const lastName = lastNameInput.value.trim();
-    const email = emailInput.value.trim();
-    const numSecu = numSecuInput.value.trim();
-    const comment = commentInput.value.trim();
-    const selectedProcedures = getSelectedProcedures();
+    clearError();
+
+    const firstName = firstNameInput?.value.trim();
+    const lastName = lastNameInput?.value.trim();
+    const email = emailInput?.value.trim();
+    const numSecu = numSecuInput?.value.trim();
+    const comment = commentInput?.value.trim();
+    const procedures = getSelectedProcedures();
 
     if (!firstName || !lastName || !email || !numSecu) {
-        alert("Veuillez remplir tous les champs obligatoires.");
-        return;
+        updateError("Veuillez remplir tous les champs obligatoires");
+        return null;
+    }
+
+    if (!/^\d+$/.test(numSecu)) {
+        updateError("Le numéro de sécurité sociale doit contenir uniquement des chiffres");
+        return null;
     }
 
     const worksheetData = {
@@ -108,81 +120,92 @@ async function createWorksheet() {
         emailNamePatient: email,
         numSecuPatient: numSecu,
         comment,
-        procedure: selectedProcedures
+        procedure: procedures
     };
 
     try {
         const response = await fetch("/api/admin/gestionWorksheet/create_worksheet", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(worksheetData)
         });
 
         const data = await response.json();
-
         if (!response.ok) {
-            alert(data.message || "Erreur lors de la création du worksheet");
-            return;
+            updateError(data.message || "Erreur lors de la création");
+            return null;
         }
 
-        sessionStorage.setItem("newWorksheet", JSON.stringify(data.worksheet));
-        window.location.href = "dashboard_dentiste.html";
         return data.worksheet;
 
     } catch (err) {
-        console.error("Erreur lors de la création du worksheet :", err);
-        alert("Erreur serveur lors de la création du worksheet");
+        console.error(err);
+        updateError("Erreur serveur lors de la création");
+        return null;
     }
 }
 
+//-----------------------
+//   EventListener
+//-----------------------
 
-// ===========================
-// Événements
-// ===========================
-formCreateWorksheet.addEventListener("submit", e => {
+//Si fiche créée on retourne sur la page d'acceuil
+formCreateWorksheet.addEventListener("submit", async e => {
     e.preventDefault();
-    createWorksheet();
-});
 
-btnAccueil.addEventListener("click", () => {
+    const worksheet = await createWorksheet();
+    if (!worksheet) return;
+    
     window.location.href = "dashboard_dentiste.html";
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadProthesistProcedure();
-    loadUserInfo();
-});
 
-btnValidateCreate.addEventListener("click", async e => {
-    e.preventDefault();
+// Bouton VALIDER
+if (btnValidateCreate) {
+    btnValidateCreate.addEventListener("click", async e => {
+        e.preventDefault();
 
-    const worksheet = await createWorksheet(); // option pour ne pas modifier le status
+        const worksheet = await createWorksheet();
+        if (!worksheet) return;
 
-    try {
-        const response = await fetch(`/api/admin/gestionWorksheet/update_status/${worksheet._id}`, {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ status: "En attente" })
-        });
+        try {
+            const response = await fetch(
+                `/api/admin/gestionWorksheet/update_status/${worksheet._id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status: "En attente" })
+                }
+            );
 
-        const data = await response.json();
+            const data = await response.json();
+            if (!response.ok) {
+                updateError(data.message || "Erreur lors de la validation");
+                return;
+            }
 
-        if (!response.ok) {
-            alert(data.message || "Erreur lors de la validation");
-            return;
+            window.location.href = "dashboard_dentiste.html";
+
+        } catch (err) {
+            console.error(err);
+            updateError("Erreur serveur lors de l'envoi");
         }
+    });
+}
 
-        alert("Worksheet créée et envoyée au prothésiste !");
+if (btnAccueil) {
+    btnAccueil.addEventListener("click", () => {
         window.location.href = "dashboard_dentiste.html";
+    });
+}
 
-    } catch (err) {
-        console.error("Erreur validateAndSendWorksheet:", err);
-        alert("Erreur serveur lors de l'envoi");
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    loadUserInfo();
+    loadProthesistProcedure();
 });

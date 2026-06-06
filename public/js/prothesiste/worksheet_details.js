@@ -14,17 +14,8 @@ const saveStatusBtn = document.getElementById("saveStatusBtn");
 const urlParams = new URLSearchParams(window.location.search);
 const worksheetId = urlParams.get("id");
 
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-    loadUserInfo();
-    if (worksheetId) await loadWorksheet(worksheetId);
-});
 
-/* =========================
-   CHARGEMENT WORKSHEET
-========================= */
+// Afiche les informations de la fiche
 async function loadWorksheet(id) {
     try {
         const response = await fetch(`/api/prothesiste/get_worksheet_by_id/${id}`, {
@@ -64,9 +55,15 @@ async function loadWorksheet(id) {
     }
 }
 
-/* =========================
-   ENREGISTRER LE STATUT
-========================= */
+//---------------------------
+//  Mise à jour de la fiche
+//---------------------------
+document.addEventListener("DOMContentLoaded", async () => {
+    loadUserInfo();
+    if (worksheetId) await loadWorksheet(worksheetId);
+});
+
+// Mise à jour du statut
 saveStatusBtn.addEventListener("click", async () => {
     const updatedData = {
         status: statusSelect.value

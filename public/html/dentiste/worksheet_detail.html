@@ -13,7 +13,7 @@
                 <div class="inline">
                     <h2 id="TitleNameUser"></h2>
                     <div class="disconnect-div">
-                    <button id="homePage" allerVers="./dashboard_dentiste.html">Page d'acceuil</button>
+                    <button id="homePage" type="button">Page d'accueil</button>
                     </div>
                 </div>
             </div>
@@ -22,6 +22,9 @@
     <h1>Créer une fiche patient</h1>
 
     <form id="worksheetCreateForm">
+        <section name="error">
+            <div><p id="errorForm" class="error">Message erreur ici</p></div>
+        </section>
         <section name = "patientInfo">
             <label>Prénom</label>
             <input type="text" id="firstNamePatient" required>
@@ -59,8 +62,6 @@
             <button type="button"  id="modifyWorksheet">Modifier</button>
         </section>
     </form>
-
-
         <footer>
             <p>Consulting School Project © 2025 Dentilib</p>
         </footer>
