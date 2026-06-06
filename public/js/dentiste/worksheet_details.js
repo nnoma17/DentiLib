@@ -1,5 +1,8 @@
 import { loadUserInfo } from "../userInfo.js";
 
+//--------------------
+//   Elements du dom
+//--------------------
 const firstNameInput = document.getElementById("firstNamePatient");
 const lastNameInput = document.getElementById("lastNamePatient");
 const emailInput = document.getElementById("emailNamePatient");
@@ -7,21 +10,63 @@ const numSecuInput = document.getElementById("numSecuPatient");
 const commentInput = document.getElementById("commentProcedure");
 const procedureTableBody = document.getElementById("worksheetTableBody");
 
+const btnAccueil = document.getElementById("homePage");
 const btnValidate = document.getElementById("validationWorksheet");
-
 const modifyBtn = document.getElementById("modifyWorksheet");
+
+const errorForm = document.getElementById("errorForm");
 
 const urlParams = new URLSearchParams(window.location.search);
 const worksheetId = urlParams.get("id");
 
+//----------------------
+//  Gestion des erreurs
+//----------------------
+function updateError(message) {
+    errorForm.textContent = message;
+    errorForm.style.display = "block";
+}
+
+function clearError() {
+    errorForm.textContent = "";
+    errorForm.style.display = "none";
+}
+
+//-----------------------
+//   Création de la fiche
+//-------------------------
+function validateWorksheetFields() {
+    clearError();
+
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const numSecu = numSecuInput.value.trim();
+
+    if (!firstName || !lastName || !email || !numSecu) {
+        updateError("Veuillez remplir tous les champs obligatoires");
+        return false;
+    }
+
+    if (!/^\d+$/.test(numSecu)) {
+        updateError("Le numéro de sécurité sociale doit contenir uniquement des chiffres");
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------
+//   EventListener
+//--------------------
 document.addEventListener("DOMContentLoaded", async () => {
     loadUserInfo();
-    if (worksheetId) await loadWorksheet(worksheetId);
+    if (worksheetId) {
+        await loadWorksheet(worksheetId);
+    }
 });
 
-/* =========================
-   CHARGEMENT WORKSHEET
-========================= */
+//Charger les info de la fiche
 async function loadWorksheet(id) {
     try {
         const response = await fetch(`/api/admin/get_worksheet_by_id/${id}`, {
@@ -31,11 +76,13 @@ async function loadWorksheet(id) {
         });
 
         const data = await response.json();
-        if (!data.success) return;
+        if (!response.ok) {
+            updateError(data.message || "Impossible de charger la fiche");
+            return;
+        }
 
         const ws = data.worksheet;
 
-        // Champs patient
         firstNameInput.value = ws.firstNamePatient || "";
         lastNameInput.value = ws.lastNamePatient || "";
         emailInput.value = ws.emailNamePatient || "";
@@ -46,7 +93,6 @@ async function loadWorksheet(id) {
             (p.name || "").trim().toLowerCase()
         );
 
-        // Actes du prothésiste
         const procResponse = await fetch("/api/dentiste/getAssociatedProthesist", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -54,15 +100,16 @@ async function loadWorksheet(id) {
         });
 
         const procData = await procResponse.json();
-        if (!procData.success) return;
+        if (!procResponse.ok) {
+            updateError(procData.message || "Erreur chargement des actes");
+            return;
+        }
 
-        const allProcedures = procData.prothesist.listeActes || [];
-
+        const allProcedures = procData.prothesist?.listeActes || [];
         procedureTableBody.innerHTML = "";
 
-        allProcedures.forEach(procedure => {
-            const procDoc = procedure.acte;
-
+        allProcedures.forEach(procItem => {
+            const procDoc = procItem.acte;
             const isChecked = worksheetActeNames.includes(
                 procDoc.name.trim().toLowerCase()
             );
@@ -74,13 +121,13 @@ async function loadWorksheet(id) {
                         data-id="${procDoc._id}"
                         data-name="${procDoc.name}"
                         data-description="${procDoc.description}"
-                        data-price="${procedure.price || 0}"
+                        data-price="${procItem.price || 0}"
                         ${isChecked ? "checked" : ""}
                     >
                 </td>
                 <td>${procDoc.name}</td>
                 <td>${procDoc.description}</td>
-                <td>${procedure.price || 0}</td>
+                <td>${procItem.price || 0}</td>
             `;
 
             procedureTableBody.appendChild(tr);
@@ -88,12 +135,10 @@ async function loadWorksheet(id) {
 
     } catch (err) {
         console.error("Erreur loadWorksheet :", err);
+        updateError("Erreur serveur lors du chargement");
     }
 }
 
-/* =========================
-   ACTES SÉLECTIONNÉS
-========================= */
 function getSelectedProcedures() {
     return [...procedureTableBody.querySelectorAll("input[type='checkbox']:checked")]
         .map(cb => ({
@@ -104,11 +149,11 @@ function getSelectedProcedures() {
         }));
 }
 
-/* =========================
-   MODIFICATION
-========================= */
+//Moficiation fiche
 modifyBtn.addEventListener("click", async e => {
     e.preventDefault();
+
+    if (!validateWorksheetFields()) return;
 
     const updatedData = {
         firstNamePatient: firstNameInput.value.trim(),
@@ -135,41 +180,53 @@ modifyBtn.addEventListener("click", async e => {
         const data = await response.json();
 
         if (!response.ok) {
-            alert(data.message || "Erreur lors de la modification");
+            updateError(data.message || "Erreur lors de la modification");
             return;
         }
 
-        alert("Worksheet modifié avec succès !");
+        window.location.href = "dashboard_dentiste.html";
+
     } catch (err) {
         console.error("Erreur updateWorksheet :", err);
-        alert("Erreur serveur lors de la modification");
+        updateError("Erreur serveur lors de la modification");
     }
 });
 
+//Création
 btnValidate.addEventListener("click", async e => {
     e.preventDefault();
+
+    if (!validateWorksheetFields()) return;
+
     try {
-        const response = await fetch(`/api/admin/gestionWorksheet/update_status/${worksheetId}`, {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ status: "En attente" })
-        });
+        const response = await fetch(
+            `/api/admin/gestionWorksheet/update_status/${worksheetId}`,
+            {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: "En attente" })
+            }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-            alert(data.message || "Erreur lors de la validation");
+            updateError(data.message || "Erreur lors de la validation");
             return;
         }
 
-        alert("Worksheet créée et envoyée au prothésiste !");l
         window.location.href = "dashboard_dentiste.html";
 
     } catch (err) {
-        console.error("Erreur validateAndSendWorksheet:", err);
-        alert("Erreur serveur lors de l'envoi");
+        console.error("Erreur validateAndSendWorksheet :", err);
+        updateError("Erreur serveur lors de l'envoi");
     }
+});
+
+
+btnAccueil.addEventListener("click", () => {
+    window.location.href = "dashboard_dentiste.html";
 });

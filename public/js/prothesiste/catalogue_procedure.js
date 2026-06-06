@@ -4,12 +4,9 @@ const homePageBtn = document.getElementById("homePage");
 let allProcedures = [];
 let prothesist = null;
 
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadUserInfoAndData();
-});
+//---------------------------------
+//   Donne les info du prothésiste
+//---------------------------------
 
 async function loadUserInfoAndData() {
     // Récupérer info utilisateur complet avec listeActes
@@ -30,16 +27,10 @@ async function loadUserInfoAndData() {
     }
 }
 
-/* =========================
-   NAVIGATION
-========================= */
-homePageBtn.addEventListener("click", () => {
-    window.location.href = "/html/prothesiste/dashboard_prothesiste.html";
-});
 
-/* =========================
-   FETCH PROCEDURES
-========================= */
+//-------------------------------------------------
+//   Recupérer la liste des actes du prothésiste
+//-------------------------------------------------
 async function fetchAndDisplayProcedures() {
     try {
         const response = await fetch("/api/prothesiste/get_all_procedures", {
@@ -59,9 +50,9 @@ async function fetchAndDisplayProcedures() {
     }
 }
 
-/* =========================
-   AFFICHAGE TABLE
-========================= */
+//-----------------------
+//   Affichage des actes
+//-----------------------
 function displayProcedures(procedures) {
     procedureTableBody.innerHTML = "";
 
@@ -92,9 +83,14 @@ function displayProcedures(procedures) {
     attachSaveListeners();
 }
 
-/* =========================
-   SAVE PRICE
-========================= */
+//-----------------------
+//   EventListener
+//-----------------------
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadUserInfoAndData();
+});
+
+//Modification des prix
 function attachSaveListeners() {
     const saveButtons = procedureTableBody.querySelectorAll(".btn-save");
 
@@ -131,3 +127,7 @@ function attachSaveListeners() {
         });
     });
 }
+
+homePageBtn.addEventListener("click", () => {
+    window.location.href = "/html/prothesiste/dashboard_prothesiste.html";
+});

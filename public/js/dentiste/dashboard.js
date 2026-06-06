@@ -6,9 +6,9 @@ const btnCreateWorksheet = document.getElementById("createWorksheet");
 
 let confirmTimeout = null;
 
-/* ===========================
-   AFFICHAGE DES WORKSHEETS
-=========================== */
+//-----------------------------
+//  Affichage des fiches de travaux
+//-----------------------------
 async function displayWorksheets(worksheets) {
     worksheetTableBody.innerHTML = "";
 
@@ -29,7 +29,7 @@ async function displayWorksheets(worksheets) {
             </td>
         `;
 
-        /* ===== Suppression ===== */
+        /* ----- Btn Suppression ----- */
         const deleteBtn = row.querySelector(".delete-worksheet");
         deleteBtn.addEventListener("click", () => {
             if (!deleteBtn.classList.contains("btn-confirm")) {
@@ -43,7 +43,7 @@ async function displayWorksheets(worksheets) {
             }
         });
 
-        /* ===== Détail ===== */
+        /* ----- Btn Détail ----- */
         const detailBtn = row.querySelector(".detail-worksheet");
         detailBtn.addEventListener("click", () => {
             window.location.href = `worksheet_detail.html?id=${worksheet._id}`;
@@ -53,9 +53,9 @@ async function displayWorksheets(worksheets) {
     }
 }
 
-/* ===========================
-   FETCH WORKSHEETS DU DENTISTE
-=========================== */
+//-------------------------------
+//  Récupérer la liste des fiches du dentiste
+//------------------------------
 async function fetchAndDisplayWorksheets() {
     try {
         const response = await fetch("/api/admin/gestionWorksheet/get_all_worksheet_by_dentiste", {
@@ -76,9 +76,9 @@ async function fetchAndDisplayWorksheets() {
     }
 }
 
-/* ===========================
-   SUPPRESSION WORKSHEET
-=========================== */
+//--------------------------
+//  Suppression de fiches
+//--------------------------
 async function deleteWorksheet(worksheetId) {
     try {
         const response = await fetch(`/api/admin/gestionWorksheet/delete_worksheet/${worksheetId}`, {
@@ -97,31 +97,28 @@ async function deleteWorksheet(worksheetId) {
             // Recharger la liste après suppression
             fetchAndDisplayWorksheets();
         } else {
-            console.error("Suppression refusée :", data.message);
+            console.error("Suppression refusée : ", data.message);
         }
     } catch (error) {
-        console.error("Erreur deleteWorksheet :", error);
+        console.error("Erreur deleteWorksheet : ", error);
     }
 }
 
-/* ===========================
-   NAVIGATION
-=========================== */
+//----------------------
+//  EventListener
+//----------------------
+//Création -> redirection
 btnCreateWorksheet.addEventListener("click", () => {
     window.location.href = "/html/dentiste/worksheet.html";
 });
 
-/* ===========================
-   INIT
-=========================== */
+//A l'initialisation
 document.addEventListener("DOMContentLoaded", () => {
     loadUserInfo();
     fetchAndDisplayWorksheets();
 });
 
-/* ===========================
-   DÉCONNEXION
-=========================== */
+//Deconnextion
 disconnectBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
     window.location.href = "../login.html";
