@@ -1,91 +1,137 @@
 const Worksheet = require("../../models/workSheet.model");
 const User = require("../../models/user.model");
 
+
+//-------------------------------------------------
+// recuperer toutes les worksheets du prothésiste
+//-------------------------------------------------
 exports.getAllWorksheets = async (req, res) => {
   try {
-    const prothesisteId = req.user._id;
+    const prothesisteId = req.user.id;
 
-    // Worksheets associées au prothésiste, pas "A valider" car unqiuement pour le dentiste
+    const user = await User.findById(prothesisteId);
+
+    if (!user || !user.associatedUser) {
+      return res.json({ success: true, worksheets: [] });
+    }
+
+    const dentistId = user.associatedUser;
+
     const worksheets = await Worksheet.find({
-      prothesiste: prothesisteId,
-      status: { $ne: "A valider" },
-    }).sort({ createdAt: -1 });
+      idDentist: dentistId,
+      status: { $ne: "A valider" }
+    })
+    .populate("procedure.acte")   // 🔥 IMPORTANT
+    .populate("idDentist", "firstName lastName email")
+    .sort({ createdAt: -1 });
 
-    res.json({ success: true, worksheets });
+    return res.json({ success: true, worksheets });
+
   } catch (err) {
     console.error("getAllWorksheets:", err);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur"
+    });
   }
 };
 
-/* =========================
-   GET : worksheet par ID
-========================= */
+
+//-------------------------------------------------
+// worksheet par ID
+//-------------------------------------------------
 exports.getWorksheetById = async (req, res) => {
   try {
-    const worksheetId = req.params.worksheetId;
-    const prothesisteId = req.user._id;
-
-    const worksheet = await Worksheet.findOne({
-      _id: worksheetId,
-      prothesiste: prothesisteId,
-    });
+    const worksheet = await Worksheet.findById(req.params.worksheetId)
+    .populate("idDentist", "firstName lastName email");
 
     if (!worksheet) {
       return res.status(404).json({
         success: false,
-        message: "Worksheet non trouvé ou non autorisé",
+        message: "Worksheet non trouvé"
       });
     }
 
     res.json({ success: true, worksheet });
+
   } catch (err) {
-    console.error("getWorksheetById:", err);
+    console.error(err);
     res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
-/* =========================
-   GET : récupérer le dentiste associé à la worksheet
-========================= */
+
+//-------------------------------------------------
+// GET : dentiste associé
+//-------------------------------------------------
 exports.getAssociatedDentist = async (req, res) => {
   try {
-    const prothesisteId = req.user._id;
+    const prothesisteId = req.user.id;
 
-    // Récupère toutes les worksheets du prothésiste
-    const worksheets = await Worksheet.find({ prothesiste: prothesisteId });
+    const user = await User.findById(prothesisteId);
 
-    // Récupère la liste des dentistes associés
-    const dentistIds = worksheets.map(ws => ws.dentiste.toString());
-    const uniqueDentistIds = [...new Set(dentistIds)];
+    if (!user?.associatedUser) {
+      return res.json({ success: true, dentists: [] });
+    }
 
-    const dentists = await User.find({ _id: { $in: uniqueDentistIds } }).select(
-      "_id firstName lastName email"
-    );
+    const dentist = await User.findById(user.associatedUser)
+      .select("_id firstName lastName email");
 
-    res.json({ success: true, dentists });
+    return res.json({
+      success: true,
+      dentists: dentist ? [dentist] : []
+    });
+
   } catch (err) {
     console.error("getAssociatedDentist:", err);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur"
+    });
   }
 };
 
+
+//-------------------------------------------------
+// PUT : update status worksheet
+//-------------------------------------------------
 exports.updateWorksheetStatus = async (req, res) => {
-    try {
-        const { worksheetId } = req.params;
-        const { status } = req.body;
+  try {
+    const { worksheetId } = req.params;
+    const { status } = req.body;
 
-        if (!status) return res.status(400).json({ success: false, message: "Statut requis" });
+    const allowed = ["A valider", "En attente", "En cours", "Termine"];
 
-        const worksheet = await Worksheet.findById(worksheetId);
-        if (!worksheet) return res.status(404).json({ success: false, message: "Worksheet non trouvée" });
-
-        worksheet.status = status;
-        await worksheet.save();
-
-        res.json({ success: true, message: "Statut mis à jour avec succès", worksheet });
-    } catch (err) {
-        console.error("updateWorksheetStatus:", err);
-        res.status(500).json({ success: false, message: "Erreur serveur" });
+    if (!allowed.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Statut invalide"
+      });
     }
+
+    const worksheet = await Worksheet.findById(worksheetId);
+
+    if (!worksheet) {
+      return res.status(404).json({
+        success: false,
+        message: "Worksheet non trouvée"
+      });
+    }
+
+    worksheet.status = status;
+    await worksheet.save();
+
+    return res.json({
+      success: true,
+      message: "Statut mis à jour avec succès",
+      worksheet
+    });
+
+  } catch (err) {
+    console.error("updateWorksheetStatus:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur"
+    });
+  }
 };

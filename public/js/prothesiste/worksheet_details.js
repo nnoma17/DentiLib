@@ -26,6 +26,7 @@ async function loadWorksheet(id) {
         if (!data.success) return;
 
         const ws = data.worksheet;
+        
 
         // Remplir infos patient (readonly)
         firstNameInput.value = ws.firstNamePatient || "";

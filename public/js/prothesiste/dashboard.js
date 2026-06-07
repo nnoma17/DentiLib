@@ -116,6 +116,11 @@ function populateStatusFilter(worksheets) {
 //--------------------------
 //  EventListener
 //--------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    //loadUserInfo();
+    fetchAndDisplayWorksheets();
+});
+
 catalogProcedureBtn.addEventListener("click", () => {
     window.location.href =
         "/html/prothesiste/catalogue_procedure.html";

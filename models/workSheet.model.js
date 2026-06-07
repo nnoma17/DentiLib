@@ -21,6 +21,9 @@ const workSheetSchema = new mongoose.Schema({
             },
             price: {
                 type: Number
+            },
+            description: {
+                type: String
             }
         }
     ],
