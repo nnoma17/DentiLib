@@ -1,6 +1,6 @@
 const Worksheet = require("../../models/workSheet.model");
 const User = require("../../models/user.model");
-
+const { WORKSHEET_STATUS } = require("../../utils/constants");
 
 //-------------------------------------------------
 // recuperer toutes les worksheets du prothésiste
@@ -38,7 +38,7 @@ exports.getAllWorksheets = async (req, res) => {
 
 
 //-------------------------------------------------
-// worksheet par ID
+// récupérer la fiche par ID
 //-------------------------------------------------
 exports.getWorksheetById = async (req, res) => {
   try {
@@ -62,7 +62,7 @@ exports.getWorksheetById = async (req, res) => {
 
 
 //-------------------------------------------------
-// GET : dentiste associé
+// Récupérer le dentiste associé
 //-------------------------------------------------
 exports.getAssociatedDentist = async (req, res) => {
   try {
@@ -93,14 +93,14 @@ exports.getAssociatedDentist = async (req, res) => {
 
 
 //-------------------------------------------------
-// PUT : update status worksheet
+// mise à jours status fiche
 //-------------------------------------------------
 exports.updateWorksheetStatus = async (req, res) => {
   try {
     const { worksheetId } = req.params;
     const { status } = req.body;
 
-    const allowed = ["A valider", "En attente", "En cours", "Termine"];
+    const allowed = Object.values(WORKSHEET_STATUS);
 
     if (!allowed.includes(status)) {
       return res.status(400).json({

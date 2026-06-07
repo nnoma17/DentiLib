@@ -24,7 +24,7 @@ async function displayWorksheets(worksheets) {
             <td>
                 <div class="div-button inline-fields" data-worksheet-id="${worksheet._id}">
                     <button class="btn-action detail-worksheet">Détail</button>
-                    <button class="btn-action delete delete-worksheet">Supprimer</button>
+                    <button class="btn-action delete delete-worksheet icon-action"></button>
                 </div>
             </td>
         `;

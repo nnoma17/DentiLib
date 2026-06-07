@@ -52,7 +52,14 @@ function validateWorksheetFields() {
         updateError("Le numéro de sécurité sociale doit contenir uniquement des chiffres");
         return false;
     }
-
+    const selectedProcedures = procedureTableBody.querySelectorAll(
+        "input[type='checkbox']:checked"
+    );
+    if (selectedProcedures.length === 0) {
+        updateError("Veuillez sélectionner au moins un acte");
+        return false;
+    }
+    
     return true;
 }
 
@@ -192,7 +199,7 @@ modifyBtn.addEventListener("click", async e => {
     }
 });
 
-//Création
+//Validation et envoie de la fiche
 btnValidate.addEventListener("click", async e => {
     e.preventDefault();
 

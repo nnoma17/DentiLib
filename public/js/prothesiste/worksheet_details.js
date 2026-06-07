@@ -49,7 +49,7 @@ async function loadWorksheet(id) {
         });
 
         // Status
-        statusSelect.value = ws.status || "A valider";
+        statusSelect.value = ws.status;
 
     } catch (err) {
         console.error("Erreur loadWorksheet :", err);
