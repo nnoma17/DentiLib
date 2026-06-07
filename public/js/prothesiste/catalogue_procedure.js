@@ -1,3 +1,5 @@
+import { loadUserInfo } from "../userInfo.js";
+
 const procedureTableBody = document.getElementById("procedureTableBody");
 const homePageBtn = document.getElementById("homePage");
 
@@ -87,6 +89,7 @@ function displayProcedures(procedures) {
 //   EventListener
 //-----------------------
 document.addEventListener("DOMContentLoaded", async () => {
+    loadUserInfo();
     await loadUserInfoAndData();
 });
 

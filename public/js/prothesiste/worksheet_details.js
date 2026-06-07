@@ -26,6 +26,7 @@ async function loadWorksheet(id) {
         if (!data.success) return;
 
         const ws = data.worksheet;
+        
 
         // Remplir infos patient (readonly)
         firstNameInput.value = ws.firstNamePatient || "";
@@ -48,7 +49,7 @@ async function loadWorksheet(id) {
         });
 
         // Status
-        statusSelect.value = ws.status || "A valider";
+        statusSelect.value = ws.status;
 
     } catch (err) {
         console.error("Erreur loadWorksheet :", err);

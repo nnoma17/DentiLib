@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { WORKSHEET_STATUS } = require("../utils/constants");
 
 const workSheetSchema = new mongoose.Schema({
     numWorkSheet: {
@@ -11,7 +12,7 @@ const workSheetSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ["A valider","En attente","En cours", "Termine"]
+        enum: Object.values(WORKSHEET_STATUS)
     },
     procedure:[
         {
@@ -21,6 +22,9 @@ const workSheetSchema = new mongoose.Schema({
             },
             price: {
                 type: Number
+            },
+            description: {
+                type: String
             }
         }
     ],

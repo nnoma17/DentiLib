@@ -1,6 +1,8 @@
 require('cypress-xpath');
 
 describe('page acceuil', () => {
+  
+  let data;
   beforeEach( () => {
     cy.visit("http://localhost:3000");
   });

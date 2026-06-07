@@ -1,0 +1,19 @@
+{
+  "dentiste": {
+    "email": "dentiste@email.fr",
+    "password": "12345678"
+  },
+
+  "prothesiste": {
+    "email": "prothesiste@email.fr",
+    "password": "12345678"
+  },
+
+  "patient": {
+    "firstName": "Ppatient",
+    "lastName": "Npatient",
+    "email": "p.n@test.com",
+    "numSecu": "1234567890123",
+    "comment": "Test automatisé Cypress"
+  }
+}

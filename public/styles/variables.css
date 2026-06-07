@@ -6,12 +6,12 @@
   --rayon-bordure: 4px;
 
   /* ===================== Couleurs principales ===================== */
-  --couleur-fond: #3f3f3f;
+  --couleur-fond: #e0e0e0;
   --couleur-principale: #0c6dce;
   --couleur-principale-survol: #083664;
   
   /* ------ Texte -----*/
-  --couleur-texte: #e7e7e7;
+  --couleur-texte: #1a1a1a;
 
   /* ===================== Boutons ===================== */
   --couleur-suppression: #990000;
@@ -22,11 +22,12 @@
   --couleur-btnDeconnexion-survol: #990000;
 
   /* ===================== Tableaux ===================== */
-  --couleur-bordure: #ccc;
-  --couleur-bordure-claire: #ddd;
-  --couleur-fond-entete-table: #f0f0f0;
+  --couleur-bordure: #812e68;
+  --couleur-bordure-claire: #850000;
+  --couleur-fond-entete-table: #880202;
+  --couleur-fond-tableau: #7da6cc63;
 
-  --couleur-survol-ligne-tab: #525252;
+  --couleur-survol-ligne-tab: #81a3be;
 
   /* ===================== Input ===================== */
   --couleur-fond-input: #e2e2e2;

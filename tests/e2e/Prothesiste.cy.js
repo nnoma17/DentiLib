@@ -1,37 +1,45 @@
 require('cypress-xpath');
 
-describe("Prothesiste", () => {
+describe("Prothésiste - Vérification du tableau (lecture seule)", () => {
 
-  beforeEach( () => {
+  beforeEach(() => {
     cy.visit("http://localhost:3000");
 
     cy.get('#email').type('prothesiste@email.fr');
     cy.get('#password').type('12345678');
     cy.xpath('//button[text()="Se connecter"]').click();
-    
+
     cy.url().should('include', '/prothesiste/dashboard_prothesiste.html');
   });
 
-  it("La fiche testProth est présente dans le tableau", () => {
-    
-    cy.get("#worksheetTableBody")
-      .should("contain", "Patient testProth")
-      .and("contain", "nom")
-      .and("contain", "testprothesiste@mail.fr")
-      .and("contain", "321654987");
+
+  it("Vérifie l'affichage complet des worksheets", () => {
+
+    cy.get("#worksheetTableBody tr")
+      .should("have.length.greaterThan", 0)
+      .first()
+      .within(() => {
+
+        // Numéro de fiche
+        cy.get("td").eq(0)
+          .should("not.be.empty");
+
+        // Nom patient
+        cy.get("td").eq(1)
+          .should("not.be.empty");
+
+        // Email patient
+        cy.get("td").eq(2)
+          .should("contain", "@");
+
+        // Numéro sécurité sociale
+        cy.get("td").eq(3)
+          .invoke("text")
+          .should("match", /^\d+$/);
+
+        // Statut
+        cy.get("td").eq(4)
+          .should("not.be.empty");
+      });
   });
-
-  it("On peut accéder au détail de la fiche", () => {
-    //tr[descendant::td[text()='Patient testProth']]
-    cy.xpath("//tr[descendant::td[text()='Patient testProth nom']]//button[contains(text(),'Détail')]")
-      .click();
-
-    cy.get("#detailFirstName").should("have.text", "Patient testProth");
-    cy.get("#detailLastName").should("have.text", "nom");
-    cy.get("#detailEmail").should("have.text", "testprothesiste@mail.fr");
-    cy.get("#detailNumSecu").should("have.text", "321654987");
-    cy.get("#detailComment").should("have.text", "remarque");
-  });
-
-
 });

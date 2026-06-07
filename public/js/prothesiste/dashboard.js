@@ -1,3 +1,5 @@
+import { loadUserInfo } from "../userInfo.js";
+
 const worksheetTableBody = document.getElementById("worksheetTableBody");
 const disconnectBtn = document.getElementById("disconnect");
 const catalogProcedureBtn = document.getElementById("catalogProcedure");
@@ -116,6 +118,11 @@ function populateStatusFilter(worksheets) {
 //--------------------------
 //  EventListener
 //--------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    loadUserInfo();
+    fetchAndDisplayWorksheets();
+});
+
 catalogProcedureBtn.addEventListener("click", () => {
     window.location.href =
         "/html/prothesiste/catalogue_procedure.html";
