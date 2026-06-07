@@ -30,8 +30,8 @@ describe('page acceuil', () => {
     cy.get('#btnCreate').click();
     cy.get('#close-modal-createUser').click();
 
-    cy.get('#userTableBody').contains('td', 'Ndentiste').should('exist');
-    cy.get('#userTableBody').contains('td', 'Pdentiste').should('exist');
+    cy.xpath("(//tbody[@id='userTableBody']//tr)[last()]").contains('td', 'Ndentiste').should('exist');
+    cy.xpath("(//tbody[@id='userTableBody']//tr)[last()]").contains('td', 'Pdentiste').should('exist');
   });
 
   it('Affiche une erreur si un champ obligatoire est vide', () => {
