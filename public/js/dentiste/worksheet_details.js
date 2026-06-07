@@ -33,6 +33,40 @@ function clearError() {
 }
 
 //-----------------------
+//  Fiche deja validée
+//-----------------------
+
+function setReadOnlyMode(ws) {
+    const isLocked = ws.status !== "A valider";
+
+    // champs input
+    [
+        firstNameInput,
+        lastNameInput,
+        emailInput,
+        numSecuInput,
+        commentInput
+    ].forEach(el => {
+        if (el) el.disabled = isLocked;
+    });
+
+    // checkboxes
+    document
+        .querySelectorAll("input[type='checkbox']")
+        .forEach(cb => cb.disabled = isLocked);
+
+    // boutons
+    if (modifyBtn) modifyBtn.disabled = isLocked;
+    if (btnValidate) btnValidate.disabled = isLocked;
+
+    // visuel optionnel
+    if (isLocked) {
+        errorForm.textContent = "Cette fiche n'est plus modifiable";
+        errorForm.style.display = "block";
+    }
+}
+
+//-----------------------
 //   Création de la fiche
 //-------------------------
 function validateWorksheetFields() {
@@ -139,6 +173,8 @@ async function loadWorksheet(id) {
 
             procedureTableBody.appendChild(tr);
         });
+
+        setReadOnlyMode(ws);
 
     } catch (err) {
         console.error("Erreur loadWorksheet :", err);

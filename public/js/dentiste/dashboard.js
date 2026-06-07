@@ -29,8 +29,14 @@ async function displayWorksheets(worksheets) {
             </td>
         `;
 
-        /* ----- Btn Suppression ----- */
+        const status = worksheet.status;
+        const canDelete = status === "A valider" || status === "Termine";
+
         const deleteBtn = row.querySelector(".delete-worksheet");
+
+        
+
+        /* ----- Btn Suppression ----- */
         deleteBtn.addEventListener("click", () => {
             if (!deleteBtn.classList.contains("btn-confirm")) {
                 deleteBtn.classList.add("btn-confirm");
@@ -42,6 +48,12 @@ async function displayWorksheets(worksheets) {
                 deleteWorksheet(worksheet._id);
             }
         });
+
+        if (!canDelete) {
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = "0.3";
+            deleteBtn.style.cursor = "not-allowed";
+        }
 
         /* ----- Btn Détail ----- */
         const detailBtn = row.querySelector(".detail-worksheet");
