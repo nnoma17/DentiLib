@@ -7,7 +7,7 @@ const params = new URLSearchParams(window.location.search)
 token = params.get('token')
 if (token){
   localStorage.setItem("token",token)
-  window.location.href = 'home.html'
+  window.location.href = 'home.html' 
 }
 
 if (loginForm) {
