@@ -1,10 +1,11 @@
 const WorkSheet = require("../../models/workSheet.model");
 const User = require("../../models/user.model");
 const Procedure = require("../../models/procedure.model");
+const { WORKSHEET_STATUS } = require("../../utils/constants");
 
-/* ===========================
-   CRÉER UN WORKSHEET
-=========================== */
+//----------------------------
+//   Créer une fiche
+//----------------------------
 const createWorksheet = async (req, res) => {
   try {
     const {
@@ -23,11 +24,11 @@ const createWorksheet = async (req, res) => {
     if (!numWorkSheet || !firstNamePatient || !lastNamePatient || !emailNamePatient || !numSecuPatient || !idDentist) {
       return res.status(400).json({ success: false, message: "Champs manquants" });
     }
-
+    
     const worksheet = new WorkSheet({
       numWorkSheet,
       comment,
-      status: "A valider", // status par défaut
+      status: WORKSHEET_STATUS.A_VALIDER, // status par défaut
       procedure,
       firstNamePatient,
       lastNamePatient,
@@ -55,15 +56,15 @@ const createWorksheet = async (req, res) => {
   }
 };
 
-/* ===========================
-   METTRE À JOUR LE STATUT
-=========================== */
+//-----------------------------
+//   Modifier le statut
+//-------------------------------
 const updateStatus = async (req, res) => {
   try {
     const { worksheetId } = req.params;
     const { status } = req.body;
 
-    if (!["A valider", "En attente", "En cours", "Termine"].includes(status)) {
+    if (!Object.values(WORKSHEET_STATUS).includes(status)) {
       return res.status(400).json({ success: false, message: "Statut invalide" });
     }
 
@@ -93,9 +94,9 @@ const updateStatus = async (req, res) => {
   }
 };
 
-/* ===========================
-   AUTRES FONCTIONS (inchangées)
-=========================== */
+//--------------------------------
+// toutes les fiches
+//--------------------------------
 const getAllWorksheets = async (req, res) => {
   try {
     const worksheets = await WorkSheet.find()
@@ -192,7 +193,7 @@ const getAssociatedWorksheets = async (req, res) => {
 
     const worksheets = await WorkSheet.find({
       idDentist: user.associatedUser._id,
-      status: { $ne: "A valider" }
+      status: { $ne: WORKSHEET_STATUS.A_VALIDER }
     }).populate("idDentist", "firstName lastName email");
 
     res.status(200).json({

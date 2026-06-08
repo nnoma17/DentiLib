@@ -113,6 +113,11 @@ async function createWorksheet() {
         return null;
     }
 
+    if (procedures.length === 0) {
+        updateError("Veuillez sélectionner au moins un acte");
+        return null;
+    }
+
     const worksheetData = {
         numWorkSheet: Date.now(),
         firstNamePatient: firstName,

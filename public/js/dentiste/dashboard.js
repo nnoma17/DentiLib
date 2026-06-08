@@ -24,13 +24,19 @@ async function displayWorksheets(worksheets) {
             <td>
                 <div class="div-button inline-fields" data-worksheet-id="${worksheet._id}">
                     <button class="btn-action detail-worksheet">Détail</button>
-                    <button class="btn-action delete delete-worksheet">Supprimer</button>
+                    <button class="btn-action delete delete-worksheet icon-action"></button>
                 </div>
             </td>
         `;
 
-        /* ----- Btn Suppression ----- */
+        const status = worksheet.status;
+        const canDelete = status === "A valider" || status === "Termine";
+
         const deleteBtn = row.querySelector(".delete-worksheet");
+
+        
+
+        /* ----- Btn Suppression ----- */
         deleteBtn.addEventListener("click", () => {
             if (!deleteBtn.classList.contains("btn-confirm")) {
                 deleteBtn.classList.add("btn-confirm");
@@ -42,6 +48,12 @@ async function displayWorksheets(worksheets) {
                 deleteWorksheet(worksheet._id);
             }
         });
+
+        if (!canDelete) {
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = "0.3";
+            deleteBtn.style.cursor = "not-allowed";
+        }
 
         /* ----- Btn Détail ----- */
         const detailBtn = row.querySelector(".detail-worksheet");

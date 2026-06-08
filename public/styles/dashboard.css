@@ -41,23 +41,16 @@ section {
 }
 
 .btn-confirm {
-    mask-image: url("/icons/confirm.svg");
-    -webkit-mask-image: url("/icons/confirm.svg");
-    mask-repeat: no-repeat;
-    mask-position: center;
-    background-color: var(--couleur-suppression);
-    width: auto;
-    mask-image: none;
-}
-
-.btn-confirm {
     background-color: var(--couleur-suppression);
     background-image: url("/icons/confirm.svg");
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 20px 20px;
-    width: 36px;
-    height: 36px;
+
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-image: none;
+
+    width: auto;
     border-radius: 6px;
 }
 
@@ -89,8 +82,9 @@ th, td {
 }
 
 tbody tr {
-  background-color: var(--couleur-fond);
+  background-color: var(--couleur-fond-tableau);
   transition: background-color 0.2s ease;
+  border-color: var(--couleur-bordure);
 }
 
 tbody tr:hover {
@@ -142,6 +136,10 @@ label {
     fill: none;
     stroke: #555;
     stroke-width: 2;
+}
+
+.icon-action {
+  height: 20px;
 }
 
 input[type="text"] {
