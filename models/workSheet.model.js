@@ -55,6 +55,11 @@ const workSheetSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    expiresAt: {
+        type: Date,
+        default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 365), //1 ans
+        expires: 0
     }
 
 },

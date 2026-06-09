@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
+const worksheetSQLRoute = require('./routes/sql/worksheet.sql.route');
 const app = express();
 
 // Middleware CORS
@@ -41,6 +41,7 @@ app.use('/api', gestionProcedure);
 app.use('/api', gestionWorksheetD);
 app.use('/api', gestionWorksheetP);
 app.use('/api', gestionCatalogue);
+app.use('/api/sql/worksheets', worksheetSQLRoute);
 
 // Page d'accueil
 app.get('/', (req, res) => {

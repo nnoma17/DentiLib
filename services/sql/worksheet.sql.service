@@ -1,0 +1,423 @@
+// services/sql/worksheet.sql.service.js
+// ============================================================
+//  DentiLib — Service CRUD SQL pour WorkSheet
+//  CP8 — Accès aux données
+//      ✅ Requêtes paramétrées (anti-injection SQL)
+//      ✅ Gestion des transactions (BEGIN / COMMIT / ROLLBACK)
+//      ✅ Style défensif (validation, gestion d'erreurs)
+//  ⚠️  N'interagit PAS avec MongoDB — couche 100% indépendante
+// ============================================================
+
+const { pool } = require('../../config/sqlConfig');
+const { WORKSHEET_STATUS } = require('../../utils/constants');
+
+// Statuts autorisés — liste blanche (whitelist)
+const ALLOWED_STATUSES = Object.values(WORKSHEET_STATUS);
+
+// ============================================================
+//  HELPERS INTERNES
+// ============================================================
+
+/**
+ * Valider un statut contre la liste blanche
+ * @param {string} status
+ * @throws {Error} si le statut n'est pas autorisé
+ */
+const _validateStatus = (status) => {
+    if (!ALLOWED_STATUSES.includes(status)) {
+        throw new Error(`Statut invalide : "${status}". Valeurs autorisées : ${ALLOWED_STATUSES.join(', ')}`);
+    }
+};
+
+/**
+ * Valider les champs obligatoires d'une worksheet
+ * @param {object} fields
+ * @throws {Error} si un champ est manquant
+ */
+const _validateRequiredFields = ({ numWorkSheet, firstNamePatient, lastNamePatient, emailPatient, numSecuPatient, idDentist }) => {
+    const missing = [];
+    if (!numWorkSheet)      missing.push('numWorkSheet');
+    if (!firstNamePatient)  missing.push('firstNamePatient');
+    if (!lastNamePatient)   missing.push('lastNamePatient');
+    if (!emailPatient)      missing.push('emailPatient');
+    if (!numSecuPatient)    missing.push('numSecuPatient');
+    if (!idDentist)         missing.push('idDentist');
+
+    if (missing.length > 0) {
+        throw new Error(`Champs manquants : ${missing.join(', ')}`);
+    }
+};
+
+// ============================================================
+//  CREATE — Créer une fiche de travail
+//  CP8 : requête paramétrée ($1, $2...) → aucune injection possible
+// ============================================================
+
+/**
+ * Créer une nouvelle worksheet en SQL
+ * @param {object} data - données de la fiche
+ * @returns {object} worksheet créée
+ */
+const createWorksheet = async (data) => {
+    const {
+        numWorkSheet,
+        comment,
+        procedureId,
+        firstNamePatient,
+        lastNamePatient,
+        emailPatient,
+        numSecuPatient,
+        invoicePDF,
+        idDentist
+    } = data;
+
+    // Validation défensive avant toute requête
+    _validateRequiredFields({ numWorkSheet, firstNamePatient, lastNamePatient, emailPatient, numSecuPatient, idDentist });
+
+    // Requête paramétrée — les $N empêchent toute injection SQL
+    const query = `
+        INSERT INTO worksheets (
+            num_worksheet,
+            status,
+            comment,
+            first_name_patient,
+            last_name_patient,
+            email_patient,
+            num_secu_patient,
+            invoice_pdf,
+            id_dentist,
+            procedure_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING *
+    `;
+
+    const values = [
+        numWorkSheet,
+        WORKSHEET_STATUS.A_VALIDER,     // statut par défaut
+        comment       || null,
+        firstNamePatient,
+        lastNamePatient,
+        emailPatient,
+        numSecuPatient,
+        invoicePDF    || null,
+        idDentist,
+        procedureId   || null
+    ];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+};
+
+// ============================================================
+//  READ — Récupérer toutes les fiches
+// ============================================================
+
+/**
+ * Récupérer toutes les worksheets avec les infos du dentiste (JOIN)
+ * @returns {Array} liste de worksheets
+ */
+const getAllWorksheets = async () => {
+    const query = `
+        SELECT
+            w.*,
+            u.first_name  AS dentist_first_name,
+            u.last_name   AS dentist_last_name,
+            u.email       AS dentist_email,
+            p.name        AS procedure_name
+        FROM worksheets w
+        LEFT JOIN users      u ON u.id = w.id_dentist
+        LEFT JOIN procedures p ON p.id = w.procedure_id
+        ORDER BY w.created_at DESC
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+};
+
+// ============================================================
+//  READ — Récupérer les fiches d'un dentiste
+//  CP8 : $1 = paramètre — aucune interpolation de chaîne
+// ============================================================
+
+/**
+ * Récupérer les worksheets d'un dentiste spécifique
+ * @param {number} dentistId - ID du dentiste (entier validé)
+ * @returns {Array} liste de worksheets
+ */
+const getWorksheetsByDentist = async (dentistId) => {
+    // Validation de type — on s'assure que c'est bien un entier
+    const id = parseInt(dentistId, 10);
+    if (isNaN(id) || id <= 0) {
+        throw new Error('ID dentiste invalide');
+    }
+
+    const query = `
+        SELECT
+            w.*,
+            u.first_name  AS dentist_first_name,
+            u.last_name   AS dentist_last_name,
+            u.email       AS dentist_email,
+            p.name        AS procedure_name
+        FROM worksheets w
+        LEFT JOIN users      u ON u.id = w.id_dentist
+        LEFT JOIN procedures p ON p.id = w.procedure_id
+        WHERE w.id_dentist = $1
+        ORDER BY w.created_at DESC
+    `;
+
+    const result = await pool.query(query, [id]);
+    return result.rows;
+};
+
+// ============================================================
+//  READ — Récupérer une fiche par ID
+// ============================================================
+
+/**
+ * Récupérer une worksheet par son ID
+ * @param {number} worksheetId
+ * @returns {object|null}
+ */
+const getWorksheetById = async (worksheetId) => {
+    const id = parseInt(worksheetId, 10);
+    if (isNaN(id) || id <= 0) {
+        throw new Error('ID worksheet invalide');
+    }
+
+    const query = `
+        SELECT
+            w.*,
+            u.first_name  AS dentist_first_name,
+            u.last_name   AS dentist_last_name,
+            u.email       AS dentist_email,
+            p.name        AS procedure_name
+        FROM worksheets w
+        LEFT JOIN users      u ON u.id = w.id_dentist
+        LEFT JOIN procedures p ON p.id = w.procedure_id
+        WHERE w.id = $1
+    `;
+
+    const result = await pool.query(query, [id]);
+    return result.rows[0] || null;
+};
+
+// ============================================================
+//  UPDATE — Modifier le statut uniquement
+//  CP8 : whitelist du statut + requête paramétrée
+// ============================================================
+
+/**
+ * Mettre à jour le statut d'une worksheet
+ * @param {number} worksheetId
+ * @param {string} status - doit être dans WORKSHEET_STATUS
+ * @returns {object} worksheet mise à jour
+ */
+const updateStatus = async (worksheetId, status) => {
+    const id = parseInt(worksheetId, 10);
+    if (isNaN(id) || id <= 0) throw new Error('ID worksheet invalide');
+
+    // Validation par liste blanche — empêche toute valeur arbitraire
+    _validateStatus(status);
+
+    const query = `
+        UPDATE worksheets
+        SET status = $1
+        WHERE id = $2
+        RETURNING *
+    `;
+
+    const result = await pool.query(query, [status, id]);
+
+    if (result.rowCount === 0) {
+        throw new Error('Worksheet non trouvée');
+    }
+
+    return result.rows[0];
+};
+
+// ============================================================
+//  UPDATE — Modifier une fiche complète
+//  CP8 : tous les champs passent par des paramètres $N
+// ============================================================
+
+/**
+ * Mettre à jour une worksheet
+ * @param {number} worksheetId
+ * @param {object} data - champs à modifier
+ * @returns {object} worksheet mise à jour
+ */
+const updateWorksheet = async (worksheetId, data) => {
+    const id = parseInt(worksheetId, 10);
+    if (isNaN(id) || id <= 0) throw new Error('ID worksheet invalide');
+
+    const {
+        comment,
+        firstNamePatient,
+        lastNamePatient,
+        emailPatient,
+        numSecuPatient,
+        invoicePDF,
+        procedureId
+    } = data;
+
+    const query = `
+        UPDATE worksheets SET
+            comment            = COALESCE($1, comment),
+            first_name_patient = COALESCE($2, first_name_patient),
+            last_name_patient  = COALESCE($3, last_name_patient),
+            email_patient      = COALESCE($4, email_patient),
+            num_secu_patient   = COALESCE($5, num_secu_patient),
+            invoice_pdf        = COALESCE($6, invoice_pdf),
+            procedure_id       = COALESCE($7, procedure_id)
+        WHERE id = $8
+        RETURNING *
+    `;
+
+    const values = [
+        comment        || null,
+        firstNamePatient || null,
+        lastNamePatient  || null,
+        emailPatient     || null,
+        numSecuPatient   || null,
+        invoicePDF       || null,
+        procedureId      || null,
+        id
+    ];
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+        throw new Error('Worksheet non trouvée');
+    }
+
+    return result.rows[0];
+};
+
+// ============================================================
+//  DELETE — Supprimer une fiche
+// ============================================================
+
+/**
+ * Supprimer une worksheet par ID
+ * @param {number} worksheetId
+ * @returns {object} worksheet supprimée
+ */
+const deleteWorksheet = async (worksheetId) => {
+    const id = parseInt(worksheetId, 10);
+    if (isNaN(id) || id <= 0) throw new Error('ID worksheet invalide');
+
+    const query = `
+        DELETE FROM worksheets
+        WHERE id = $1
+        RETURNING *
+    `;
+
+    const result = await pool.query(query, [id]);
+
+    if (result.rowCount === 0) {
+        throw new Error('Worksheet non trouvée');
+    }
+
+    return result.rows[0];
+};
+
+// ============================================================
+//  TRANSACTION — Créer une worksheet + mettre à jour le statut
+//  CP8 : BEGIN / COMMIT / ROLLBACK explicites
+//  Cas d'usage : créer une fiche et l'associer immédiatement
+//  à un statut spécifique de manière atomique
+// ============================================================
+
+/**
+ * Créer une worksheet et mettre à jour son statut en une transaction atomique
+ * Si l'une des deux opérations échoue, TOUT est annulé (ROLLBACK)
+ *
+ * @param {object} worksheetData - données de la fiche
+ * @param {string} initialStatus - statut initial à appliquer après création
+ * @returns {object} worksheet finale
+ */
+const createWorksheetWithStatus = async (worksheetData, initialStatus) => {
+    // Validation avant de démarrer la transaction
+    _validateRequiredFields({
+        numWorkSheet:     worksheetData.numWorkSheet,
+        firstNamePatient: worksheetData.firstNamePatient,
+        lastNamePatient:  worksheetData.lastNamePatient,
+        emailPatient:     worksheetData.emailPatient,
+        numSecuPatient:   worksheetData.numSecuPatient,
+        idDentist:        worksheetData.idDentist
+    });
+    _validateStatus(initialStatus);
+
+    // Obtenir une connexion dédiée du pool pour la transaction
+    const client = await pool.connect();
+
+    try {
+        // ── Début de transaction ──────────────────────────────
+        await client.query('BEGIN');
+
+        // Étape 1 — Insertion de la fiche
+        const insertQuery = `
+            INSERT INTO worksheets (
+                num_worksheet, status, comment,
+                first_name_patient, last_name_patient, email_patient,
+                num_secu_patient, invoice_pdf, id_dentist, procedure_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            RETURNING *
+        `;
+
+        const insertValues = [
+            worksheetData.numWorkSheet,
+            WORKSHEET_STATUS.A_VALIDER,
+            worksheetData.comment      || null,
+            worksheetData.firstNamePatient,
+            worksheetData.lastNamePatient,
+            worksheetData.emailPatient,
+            worksheetData.numSecuPatient,
+            worksheetData.invoicePDF   || null,
+            worksheetData.idDentist,
+            worksheetData.procedureId  || null
+        ];
+
+        const insertResult = await client.query(insertQuery, insertValues);
+        const createdWorksheet = insertResult.rows[0];
+
+        // Étape 2 — Mise à jour du statut dans la même transaction
+        const updateQuery = `
+            UPDATE worksheets
+            SET status = $1
+            WHERE id = $2
+            RETURNING *
+        `;
+
+        const updateResult = await client.query(updateQuery, [initialStatus, createdWorksheet.id]);
+        const finalWorksheet = updateResult.rows[0];
+
+        // ── Validation atomique ───────────────────────────────
+        await client.query('COMMIT');
+
+        return finalWorksheet;
+
+    } catch (err) {
+        // ── Annulation totale en cas d'erreur ─────────────────
+        await client.query('ROLLBACK');
+        console.error('[SQL Transaction] ROLLBACK déclenché :', err.message);
+        throw err;     // on propage l'erreur au controller
+
+    } finally {
+        // Toujours libérer la connexion vers le pool
+        client.release();
+    }
+};
+
+// ============================================================
+//  EXPORTS
+// ============================================================
+module.exports = {
+    createWorksheet,
+    getAllWorksheets,
+    getWorksheetsByDentist,
+    getWorksheetById,
+    updateStatus,
+    updateWorksheet,
+    deleteWorksheet,
+    createWorksheetWithStatus   // démo transaction CP8
+};
