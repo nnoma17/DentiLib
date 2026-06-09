@@ -1,5 +1,6 @@
 const Worksheet = require("../../models/workSheet.model");
 const User = require("../../models/user.model");
+const Log = require("../../models/log.model");
 const { WORKSHEET_STATUS } = require("../../utils/constants");
 
 //-------------------------------------------------
@@ -120,6 +121,13 @@ exports.updateWorksheetStatus = async (req, res) => {
 
     worksheet.status = status;
     await worksheet.save();
+
+    
+    await Log.create({
+        userId: req.user.id,
+        action: "MODIFICATION_STATUS_FICHE",
+        targetId: worksheetId
+    });
 
     return res.json({
       success: true,

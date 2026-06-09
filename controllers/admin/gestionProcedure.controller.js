@@ -1,4 +1,5 @@
 const Procedure = require("../../models/procedure.model");
+const Log = require("../../models/log.model");
 const jwt = require("jsonwebtoken");
 
 const createProcedure = async (req, res) => {
@@ -18,6 +19,12 @@ const createProcedure = async (req, res) => {
         description: description
     });
     await procedure.save();
+
+    await Log.create({
+        userId: req.user.id,
+        action: "CREATION_FICHE",
+        targetId: procedure._id
+    });
 
     res.status(201).json({ success: true, message: "Acte créé", procedure });
     
@@ -41,7 +48,13 @@ const deleteProcedure = async (req, res) => {
         
         await Procedure.findByIdAndDelete(procedureId);
 
-    res.status(200).json({ success: true, message: "Acte supprimé"});
+        
+        await Log.create({
+            userId: req.user.id,
+            action: "SUPPRESSION_ACTE",
+            targetId: procedureId
+        });
+        res.status(200).json({ success: true, message: "Acte supprimé"});
     
     } catch (error) {
         res.status(500).json({message: "une erreur est survenu", error : error.message});
@@ -81,6 +94,11 @@ const updateProcedure = async (req, res) => {
 
         await procedure.save();
 
+        await Log.create({
+            userId: req.user.id,
+            action: "MISE_A_JOUR_ACTE",
+            targetId: procedureId
+        });
         res.status(200).json({ success: true, message: "Acte mis à jour", procedure });
         
 
@@ -129,6 +147,13 @@ const modifyProcedure = async (req, res) => {
         procedure.description = description || procedure.description;
 
         await procedure.save();
+
+        
+        await Log.create({
+            userId: req.user.id,
+            action: "MISE_A_JOUR_ACTE",
+            targetId: procedureId
+        });
 
         res.status(200).json({
             success: true,

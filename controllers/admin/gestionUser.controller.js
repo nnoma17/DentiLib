@@ -1,4 +1,5 @@
 const User = require("../../models/user.model");
+const Log = require("../../models/log.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendUserCreationMail } = require("../../utils/mailer");
@@ -44,6 +45,11 @@ const createAdmin = async (req, res) => {
     });
     await user.save();
 
+    await Log.create({
+        userId: req.user.id,
+        action: "CREATION_ADMINISTRATEUR",
+        targetId: user._id
+    });
     res.status(201).json({ success: true, message: "Utilisateur créé", user });
     
     } catch (error) {
@@ -56,6 +62,7 @@ const deleteUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -66,6 +73,11 @@ const deleteUser = async (req, res) => {
         
         await User.findByIdAndDelete(userId);
 
+        await Log.create({
+            userId: req.user.id,
+            action: "SUPPRESSION_UTILISATEUR",
+            targetId: userId
+        });
     res.status(200).json({ success: true, message: "Utilisateur supprimé"});
     
     } catch (error) {
@@ -143,6 +155,11 @@ const updateUser = async (req, res) => {
 
         await user.save();
 
+        await Log.create({
+            userId: req.user.id,
+            action: "MISE_A_JOUR_UTILISATEUR",
+            targetId: userId
+        });
         res.status(200).json({ success: true, message: "Utilisateur mis à jour", user });
         
 
@@ -216,15 +233,22 @@ const createUser = async (req, res) => {
 
       await sendUserCreationMail(user.email, user.firstName, password);
 
+      
       return res.status(201).json({
-        success: true,
-        message: "Prothésiste créé",
-        user
-      });
+          success: true,
+          message: "Prothésiste créé",
+          user
+        });
     }
-
+    
     await user.save();
     await sendUserCreationMail(user.email, user.firstName, password);
+    
+      await Log.create({
+          userId: req.user.id,
+          action: "CREATION_UTILISATEUR",
+          targetId: user._id
+      });
 
     res.status(201).json({
       success: true,

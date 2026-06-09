@@ -1,6 +1,7 @@
 const WorkSheet = require("../../models/workSheet.model");
 const User = require("../../models/user.model");
 const Procedure = require("../../models/procedure.model");
+const Log = require("../../models/log.model");
 const { WORKSHEET_STATUS } = require("../../utils/constants");
 
 //----------------------------
@@ -77,6 +78,12 @@ const updateStatus = async (req, res) => {
     if (!updatedWorksheet) {
       return res.status(404).json({ success: false, message: "Worksheet non trouvé" });
     }
+    
+    await Log.create({
+        userId: req.user.id,
+        action: "VALIDATION_FICHE",
+        targetId: worksheetId
+    });
 
     res.status(200).json({
       success: true,
@@ -136,12 +143,20 @@ const getWorksheetById = async (req, res) => {
   }
 };
 
+//Validation
 const updateWorksheet = async (req, res) => {
   try {
     const { worksheetId } = req.params;
     const updatedWorksheet = await WorkSheet.findByIdAndUpdate(worksheetId, req.body, { new: true });
 
     if (!updatedWorksheet) return res.status(404).json({ success: false, message: "Worksheet non trouvé" });
+    
+    await Log.create({
+        userId: req.user.id,
+        action: "MISE_A_JOUR_FICHE",
+        targetId: worksheetId
+    });
+
     res.status(200).json({ success: true, message: "Worksheet mis à jour", worksheet: updatedWorksheet });
   } catch (error) {
     console.error("Erreur updateWorksheet :", error);
@@ -155,6 +170,13 @@ const deleteWorksheet = async (req, res) => {
     const deletedWorksheet = await WorkSheet.findByIdAndDelete(worksheetId);
 
     if (!deletedWorksheet) return res.status(404).json({ success: false, message: "Worksheet non trouvé" });
+    
+    await Log.create({
+        userId: req.user.id,
+        action: "SUPPRESSION_FICHE",
+        targetId: worksheetId
+    });
+
     res.status(200).json({ success: true, message: "Worksheet supprimé", worksheet: deletedWorksheet });
   } catch (error) {
     console.error("Erreur deleteWorksheet :", error);

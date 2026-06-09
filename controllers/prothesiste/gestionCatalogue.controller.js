@@ -1,5 +1,6 @@
 const Procedure = require("../../models/procedure.model");
 const User = require("../../models/user.model");
+const Log = require("../../models/log.model");
 
 exports.getAllProcedures = async (req, res) => {
     try {
@@ -33,11 +34,23 @@ exports.updateProcedurePrice = async (req, res) => {
         } else if (price > 0) {
             // Ajouter la procédure si price > 0
             prothesist.listeActes.push({ acte: procedureId, price });
+            
+            await Log.create({
+                userId: req.user.id,
+                action: "MODIFICATION_PRIX_CATALOGUE",
+                targetId: procedureId
+            });
         }
 
         // Si price = 0, retirer la procédure du catalogue
         if (existingIndex !== -1 && price === 0) {
             prothesist.listeActes.splice(existingIndex, 1);
+            
+            await Log.create({
+                userId: req.user.id,
+                action: "SUPPRESSION_ACTE_CATALOGUE",
+                targetId: procedureId
+            });
         }
 
         await prothesist.save();
