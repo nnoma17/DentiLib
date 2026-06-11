@@ -105,7 +105,7 @@ async function displayUsers(users) {
             <td>${user.role}</td>
             <td>${associatedUser}</td>
             <td>
-                <div class="div-button inline-fields" data-user-id="${user._id}">
+                <div class="div-button inline-fields" data-user-id="${user.id_user}">
                     <div class="inline">
                         <button class="btn-action modify modify-user" data-tooltip="Modifier"></button>
                         <button class="btn-action delete delete-user" data-tooltip="Supprimer"></button>
@@ -125,7 +125,7 @@ async function displayUsers(users) {
                     deleteBtn.classList.remove("btn-confirm");
                 }, 2000);
             } else {
-                deleteUser(user._id);
+                deleteUser(user.id_user);
             }
         });
 
@@ -157,7 +157,7 @@ async function displayUsers(users) {
                 }
             }
 
-            userToEditId = user._id;
+            userToEditId = user.id_user;
             modalModifyUser.style.display = "flex";
         });
 
@@ -182,7 +182,7 @@ async function deleteUser(id) {
         }
 
         // Mise à jour locale
-        allUsers = allUsers.filter(user => user._id !== id);
+        allUsers = allUsers.filter(user => user.id_user !== id);
         applyFilters();
 
     } catch (error) {

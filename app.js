@@ -27,13 +27,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static('public'));
 
-// Routes
-const userRoutes = require('./routes/userAuth.route');  
-const gestionUser = require('./routes/admin/gestionUser.route');
-const gestionProcedure = require('./routes/admin/gestionProcedure.route');
-const gestionWorksheetD = require('./routes/dentiste/gestionWorksheet.route');
-const gestionWorksheetP = require('./routes/prothesiste/gestionWorksheet.route');
-const gestionCatalogue = require('./routes/prothesiste/gestionCatalogue.route');
+const userRoutes = require('./backend/routes/userAuth.route');  
+const gestionUser = require('./backend/routes/admin/gestionUser.route');
+const gestionProcedure = require('./backend/routes/admin/gestionProcedure.route');
+const gestionWorksheetD = require('./backend/routes/dentiste/gestionWorksheet.route');
+const gestionWorksheetP = require('./backend/routes/prothesiste/gestionWorksheet.route');
+const gestionCatalogue = require('./backend/routes/prothesiste/gestionCatalogue.route');
 
 app.use('/api', userRoutes);
 app.use('/api', gestionUser);

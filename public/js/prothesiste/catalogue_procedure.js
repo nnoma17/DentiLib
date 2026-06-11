@@ -11,51 +11,41 @@ let prothesist = null;
 //---------------------------------
 
 async function loadUserInfoAndData() {
-    // Récupérer info utilisateur complet avec listeActes
     try {
-        const response = await fetch("/api/prothesiste/me", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+
+        const [proceduresRes, catalogueRes] = await Promise.all([
+            fetch("/api/prothesiste/get_all_procedures", { headers }),
+            fetch("/api/prothesiste/get_catalogue", { headers })
+        ]);
+
+        const [proceduresData, catalogueData] = await Promise.all([
+            proceduresRes.json(),
+            catalogueRes.json()
+        ]);
+
+        if (!proceduresData.success) throw new Error("Impossible de récupérer les procédures");
+        if (!catalogueData.success) throw new Error("Impossible de récupérer le catalogue");
+
+        allProcedures = proceduresData.procedures || [];
+
+        // Map idProcedure → price pour lookup O(1)
+        const priceMap = {};
+        (catalogueData.catalogue || []).forEach(c => {
+            priceMap[c.idProcedure] = c.price;
         });
 
-        const data = await response.json();
-        if (!data.success) throw new Error("Impossible de récupérer les infos utilisateur");
+        displayProcedures(allProcedures, priceMap);
 
-        prothesist = data.user;
-
-        // Récupérer toutes les procédures
-        await fetchAndDisplayProcedures();
     } catch (err) {
         console.error("loadUserInfoAndData:", err);
-    }
-}
-
-
-//-------------------------------------------------
-//   Recupérer la liste des actes du prothésiste
-//-------------------------------------------------
-async function fetchAndDisplayProcedures() {
-    try {
-        const response = await fetch("/api/prothesiste/get_all_procedures", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-
-        if (!response.ok) throw new Error("Erreur récupération des procédures");
-
-        const data = await response.json();
-        if (!data.success) return;
-
-        allProcedures = data.procedures || [];
-        displayProcedures(allProcedures);
-
-    } catch (err) {
-        console.error("fetchAndDisplayProcedures:", err);
     }
 }
 
 //-----------------------
 //   Affichage des actes
 //-----------------------
-function displayProcedures(procedures) {
+function displayProcedures(procedures, priceMap = {}) {
     procedureTableBody.innerHTML = "";
 
     if (!procedures.length) {
@@ -64,19 +54,17 @@ function displayProcedures(procedures) {
     }
 
     procedures.forEach(proc => {
-        // Chercher si le prothésiste a déjà cette procédure
-        const existing = prothesist.listeActes?.find(a => String(a.acte._id) === String(proc._id));
-        const price = existing ? existing.price : 0;
+        const price = priceMap[proc.idProcedure] ?? 0;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${proc.name}</td>
             <td>${proc.description}</td>
             <td>
-                <input type="number" min="0" value="${price}" data-id="${proc._id}" class="price-input">
+                <input type="number" min="0" value="${price}" data-id="${proc.idProcedure}" class="price-input">
             </td>
             <td>
-                <button class="btn-save" data-id="${proc._id}">Enregistrer</button>
+                <button class="btn-save" data-id="${proc.idProcedure}">Enregistrer</button>
             </td>
         `;
         procedureTableBody.appendChild(tr);

@@ -130,8 +130,8 @@ async function loadWorksheet(id) {
         numSecuInput.value = ws.numSecuPatient || "";
         commentInput.value = ws.comment || "";
 
-        const worksheetActeNames = (ws.procedure || []).map(p =>
-            (p.name || "").trim().toLowerCase()
+        const worksheetActeNames = (ws.Actes || []).map(acte =>
+            (acte.name || "").trim().toLowerCase()
         );
 
         const procResponse = await fetch("/api/dentiste/getAssociatedProthesist", {
@@ -159,7 +159,7 @@ async function loadWorksheet(id) {
             tr.innerHTML = `
                 <td>
                     <input type="checkbox"
-                        data-id="${procDoc._id}"
+                        data-id="${procDoc.idProcedure}"
                         data-name="${procDoc.name}"
                         data-description="${procDoc.description}"
                         data-price="${procItem.price || 0}"

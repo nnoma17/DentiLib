@@ -33,10 +33,13 @@ async function createUser() {
                 role: roleSelect.value,
                 siret: siretInput.value,
                 password: passwordInput.value,
-                dentisteId: listDentisteSelect.value
+                dentisteId: roleSelect.value === "PROTHESISTE"
+                    ? listDentisteSelect.value
+                    : null
             })
         });
         const data = await response.json();
+        
         if (!response.ok){ 
             errorMessage.style.display = "block";
             errorMessage.textContent = data.message;
@@ -75,6 +78,7 @@ async function fetchDentists() {
         });
         
         let data = await response.json();
+        console.log(data);
         displayDentist(data.users);
     } catch (error) {
         console.error(error);
@@ -86,7 +90,7 @@ function displayDentist(users){
     for(let user of users){
         if(!user.associatedUser){
             const option = document.createElement("option");
-            option.value = user._id;
+            option.value = user.id_user;
             option.textContent = `${user.firstName} ${user.lastName}`;
             listDentisteSelect.appendChild(option);
         }

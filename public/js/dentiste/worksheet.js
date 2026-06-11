@@ -12,6 +12,8 @@ const procedureTableBody = document.getElementById("worksheetTableBody");
 const btnValidateCreate = document.getElementById("validationCreateWorksheet");
 const errorForm = document.getElementById("errorForm");
 
+let associatedProthesisteId = null;
+
 //----------------------
 // Gestion des erreurs
 //----------------------
@@ -41,39 +43,45 @@ async function loadProthesistProcedure() {
         });
 
         const data = await response.json();
+        associatedProthesisteId = data.prothesist?.idProthesiste;
+
+        console.log(data);
+
         if (!response.ok) throw new Error(data.message);
 
         const procedures = data.prothesist?.listeActes || [];
+
         procedureTableBody.innerHTML = "";
 
         if (procedures.length === 0) {
             procedureTableBody.innerHTML =
-                `<tr><td colspan="4" style="text-align:center;">Aucune procédure disponible</td></tr>`;
+                `<tr><td colspan="4" style="text-align:center;">Aucun acte disponible</td></tr>`;
             return;
         }
 
-        procedures.forEach(actItem => {
-            const procDoc = actItem.acte || {};
+        procedures.forEach(item => {
+            const acte = item.acte || {};
+
             const tr = document.createElement("tr");
 
             tr.innerHTML = `
                 <td>
                     <input type="checkbox"
-                        data-name="${procDoc.name}"
-                        data-description="${procDoc.description}"
-                        data-price="${actItem.price || 0}">
+                        data-name="${acte.name}"
+                        data-description="${acte.description}"
+                        data-price="${item.price}">
                 </td>
-                <td>${procDoc.name}</td>
-                <td>${procDoc.description}</td>
-                <td>${actItem.price || 0}</td>
+                <td>${acte.name}</td>
+                <td>${acte.description}</td>
+                <td>${item.price}</td>
             `;
 
             procedureTableBody.appendChild(tr);
         });
 
     } catch (err) {
-        console.error(err);
-        updateError("Erreur lors du chargement des procédures");
+        console.error("ERREUR :", err);
+        updateError("Erreur lors du chargement des actes");
     }
 }
 
@@ -120,6 +128,7 @@ async function createWorksheet() {
 
     const worksheetData = {
         numWorkSheet: Date.now(),
+        idProthesiste: associatedProthesisteId,
         firstNamePatient: firstName,
         lastNamePatient: lastName,
         emailNamePatient: email,
@@ -178,7 +187,7 @@ if (btnValidateCreate) {
 
         try {
             const response = await fetch(
-                `/api/admin/gestionWorksheet/update_status/${worksheet._id}`,
+                `/api/admin/gestionWorksheet/update_status/${worksheet.idWorkSheet}`,
                 {
                     method: "PUT",
                     headers: {
