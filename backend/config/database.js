@@ -1,11 +1,12 @@
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
-  'dentilib',
-  'dentilib_user',
-  'admin',
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: 'localhost',
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
     logging: false
   }
