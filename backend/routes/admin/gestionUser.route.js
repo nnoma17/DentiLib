@@ -3,7 +3,6 @@ const {
     createUser,
     createAdmin,
     deleteUser,
-//    deleteActualUser,
     updateUser,
     getUserById,
     getAllUsers,

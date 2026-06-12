@@ -14,7 +14,7 @@ let allWorksheets = [];
 //------------------------------------
 async function fetchAndDisplayWorksheets() {
     try {
-        const response = await fetch("/api/worksheet/associated", {
+        const response = await fetch("/api/prothesiste/gestionWorksheet/get_all_worksheets", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
@@ -65,7 +65,7 @@ function displayWorksheets(worksheets) {
             <td>${ws.numSecuPatient}</td>
             <td>${ws.status}</td>
             <td>
-                <button class="btn-action detail-btn" data-id="${ws._id}">
+                <button class="btn-action detail-btn" data-id="${ws.idWorkSheet}">
                     Détail
                 </button>
             </td>
@@ -73,7 +73,7 @@ function displayWorksheets(worksheets) {
 
         tr.querySelector(".detail-btn").addEventListener("click", () => {
             window.location.href =
-                `/html/prothesiste/worksheet_detail.html?id=${ws._id}`;
+                `/html/prothesiste/worksheet_detail.html?id=${ws.idWorkSheet}`;
         });
 
         worksheetTableBody.appendChild(tr);

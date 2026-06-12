@@ -9,8 +9,8 @@ const authMiddleware = (req, res, next) => {
       return res.status(403).json({ message: "token no trouvé ou invalide" });
     }
     const token = authHeader.split(" ")[1];
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     if (!decoded?.id)
       return res.status(403).json({ message: "token invalide" });
 
@@ -20,4 +20,5 @@ const authMiddleware = (req, res, next) => {
     res.status(400).json({ message: "token invalide", success: false });
   }
 };
+
 module.exports = authMiddleware;

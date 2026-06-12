@@ -28,6 +28,7 @@ export async function getProcedures() {
         }
 
         const data = await response.json();
+        
         displayProcedures(data.procedures);
 
     } catch (error) {
@@ -68,7 +69,7 @@ function displayProcedures(procedures) {
                     deleteBtn.classList.remove("btn-confirm");
                 }, 2000);
             } else {
-                deleteProcedure(procedure._id);
+                deleteProcedure(procedure.idProcedure);
             }
         });
 
@@ -78,7 +79,7 @@ function displayProcedures(procedures) {
             inputName.value = procedure.name;
             inputDescription.value = procedure.description;
 
-            procedureToEditId = procedure._id;
+            procedureToEditId = procedure.idProcedure;
             modalModifyProcedure.style.display = "flex";
         });
 
@@ -123,7 +124,6 @@ async function modifyProcedure(id) {
         );
 
         const data = await response.json();
-
         if (!response.ok) {
             alert(data.message || "Erreur lors de la modification de l'acte");
             return;

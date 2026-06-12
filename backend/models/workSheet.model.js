@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { WORKSHEET_STATUS } = require("../utils/constants");
+const { WORKSHEET_STATUS } = require("../../utils/constants");
 
 const workSheetSchema = new mongoose.Schema({
     numWorkSheet: {

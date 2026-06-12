@@ -22,7 +22,7 @@ async function displayWorksheets(worksheets) {
             <td>${worksheet.numSecuPatient}</td>
             <td>${worksheet.status}</td>
             <td>
-                <div class="div-button inline-fields" data-worksheet-id="${worksheet._id}">
+                <div class="div-button inline-fields" data-worksheet-id="${worksheet.idWorkSheet}">
                     <button class="btn-action detail-worksheet">Détail</button>
                     <button class="btn-action delete delete-worksheet icon-action"></button>
                 </div>
@@ -45,7 +45,7 @@ async function displayWorksheets(worksheets) {
                     deleteBtn.classList.remove("btn-confirm");
                 }, 2000);
             } else {
-                deleteWorksheet(worksheet._id);
+                deleteWorksheet(worksheet.idWorkSheet);
             }
         });
 
@@ -58,7 +58,7 @@ async function displayWorksheets(worksheets) {
         /* ----- Btn Détail ----- */
         const detailBtn = row.querySelector(".detail-worksheet");
         detailBtn.addEventListener("click", () => {
-            window.location.href = `worksheet_detail.html?id=${worksheet._id}`;
+            window.location.href = `worksheet_detail.html?id=${worksheet.idWorkSheet}`;
         });
 
         worksheetTableBody.appendChild(row);
