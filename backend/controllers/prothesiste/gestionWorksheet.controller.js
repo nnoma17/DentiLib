@@ -1,4 +1,4 @@
-const { FicheTravaux, Utilisateur, Log } = require("../../models");
+const { FicheTravaux, Utilisateur, Log, Acte } = require("../../models");
 const { WORKSHEET_STATUS } = require("../../../utils/constants");
 const { Op } = require("sequelize");
 
@@ -26,14 +26,23 @@ exports.getAllWorksheets = async (req, res) => {
 exports.getWorksheetById = async (req, res) => {
   try {
     const worksheet = await FicheTravaux.findOne({
-      where: { idWorkSheet: req.params.worksheetId }
+      where: { idWorkSheet: req.params.worksheetId },
+      include: [{ model: Acte, through: { attributes: ["price", "description"] } }]
     });
 
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
 
-    return res.json({ success: true, worksheet });
+    const plain = worksheet.get({ plain: true });
+
+    const procedure = (plain.Actes || []).map(acte => ({
+      name: acte.name,
+      description: acte.FicheTravauxActe?.description ?? acte.description,
+      price: acte.FicheTravauxActe?.price ?? 0
+    }));
+
+    return res.json({ success: true, worksheet: { ...plain, procedure } });
 
   } catch (err) {
     return res.status(500).json({ success: false, message: "Erreur serveur" });
