@@ -7,7 +7,7 @@ const FicheTravaux = sequelize.define('FicheTravaux', {
     primaryKey: true,
     autoIncrement: true
   },
-  numWorkSheet:      { type: DataTypes.INTEGER },
+  numWorkSheet:      { type: DataTypes.BIGINT },
   status:            { type: DataTypes.ENUM('A valider','En attente','En cours','Termine') },
   date_creation:     { type: DataTypes.DATE },
   comment:           { type: DataTypes.TEXT },
