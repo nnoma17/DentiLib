@@ -27,7 +27,7 @@ jobs:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
-          node server.js &
+          node backend/server.js &
           SERVER_PID=$!
           npx wait-on https://dentilib-5sk3.onrender.com
           echo "Server is ready"
