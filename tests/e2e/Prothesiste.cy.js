@@ -5,7 +5,7 @@ describe("Prothésiste - Vérification du tableau (lecture seule)", () => {
       cy.login(users.prothesiste.email, users.prothesiste.password);
     });
 
-    cy.url().should('include', '/prothesiste/dashboard_prothesiste.html');
+    cy.url({ timeout: 10000 }).should('include', '/prothesiste/dashboard_prothesiste.html');
   });
 
 

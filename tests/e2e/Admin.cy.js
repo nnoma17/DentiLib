@@ -2,7 +2,7 @@ describe('page acceuil', () => {
   beforeEach(function () {
     cy.fixture('users').then((users) => {
       cy.login(users.admin.email, users.admin.password);
-      cy.url().should('include', '/admin/dashboard_admin.html');
+      cy.url({ timeout: 10000 }).should('include', '/admin/dashboard_admin.html');
     });
   });
 

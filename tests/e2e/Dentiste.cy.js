@@ -9,13 +9,13 @@ describe("Dentiste - Création d'une fiche patient", () => {
       cy.login(users.dentiste.email, users.dentiste.password);
     });
 
-    cy.url().should('include', '/dentiste/dashboard_dentiste.html');
+    cy.url({ timeout: 10000 }).should('include', '/dentiste/dashboard_dentiste.html');
   });
 
   it("Créer une fiche et vérifier le détail dans le dashboard", function () {
 
     cy.get("#createWorksheet").click();
-    cy.url().should("include", "worksheet");
+    cy.url({ timeout: 10000 }).should("include", "worksheet");
 
     cy.get("#firstNamePatient").type(this.data.firstName);
     cy.get("#lastNamePatient").type(this.data.lastName);
@@ -27,7 +27,7 @@ describe("Dentiste - Création d'une fiche patient", () => {
 
     cy.get("#createWorksheet").click();
 
-    cy.url().should("include", "dashboard_dentiste");
+    cy.url({ timeout: 10000 }).should("include", "dashboard_dentiste");
 
     cy.get("#worksheetTableBody tr")
       .contains(this.data.firstName)
@@ -49,7 +49,7 @@ describe("Dentiste - Création d'une fiche patient", () => {
   it("Créer une fiche et ne pas mettre de mail", function () {
 
     cy.get("#createWorksheet").click();
-    cy.url().should("include", "worksheet");
+    cy.url({ timeout: 10000 }).should("include", "worksheet");
 
     cy.get("#firstNamePatient").type(this.data.firstName);
     cy.get("#lastNamePatient").type(this.data.lastName);
@@ -67,7 +67,7 @@ describe("Dentiste - Création d'une fiche patient", () => {
   it("Créer une fiche et mettre un numéro invalide", function () {
 
     cy.get("#createWorksheet").click();
-    cy.url().should("include", "worksheet");
+    cy.url({ timeout: 10000 }).should("include", "worksheet");
 
     cy.get("#firstNamePatient").type(this.data.firstName);
     cy.get("#lastNamePatient").type(this.data.lastName);

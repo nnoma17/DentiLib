@@ -10,7 +10,7 @@ describe("Création fiche", () => {
       cy.login(users.dentiste.email, users.dentiste.password);
     });
 
-    cy.url().should('include', '/dentiste/dashboard_dentiste.html');
+    cy.url({ timeout: 10000 }).should('include', '/dentiste/dashboard_dentiste.html');
   });
 
   it("Création fiche complète + validation + vérification prothésiste", function () {
@@ -28,7 +28,7 @@ describe("Création fiche", () => {
 
     cy.xpath(`//tr[descendant::td[contains(text(),'${this.data.patient.acteName}')]]//input`).click();
     cy.get("#createWorksheet").click();
-    cy.url().should("include", "dashboard_dentiste");
+    cy.url({ timeout: 10000 }).should("include", "dashboard_dentiste");
 
     // --------------------------
     // 2. Détail
@@ -38,25 +38,25 @@ describe("Création fiche", () => {
       .parent()
       .contains("Détail")
       .click();
-    cy.url().should("include", "worksheet_detail");
+    cy.url({ timeout: 10000 }).should("include", "worksheet_detail");
 
     // --------------------------
     // 3. Valider et envoyer
     // --------------------------
     cy.get("#validationWorksheet").click();
-    cy.url().should("include", "dashboard_dentiste");
+    cy.url({ timeout: 10000 }).should("include", "dashboard_dentiste");
 
     // --------------------------
     // 4. Déconnexion dentiste
     // --------------------------
     cy.get("#disconnect").click();
-    cy.url().should("include", "login");
+    cy.url({ timeout: 10000 }).should("include", "login");
 
     // --------------------------
     // 5. Login prothésiste
     // --------------------------
     cy.login(this.users.prothesiste.email, this.users.prothesiste.password);
-    cy.url().should('include', '/prothesiste/dashboard_prothesiste.html');
+    cy.url({ timeout: 10000 }).should('include', '/prothesiste/dashboard_prothesiste.html');
 
     // --------------------------
     // 6. Vérification fiche

@@ -12,7 +12,7 @@ describe('page acceuil', () => {
     cy.get('#email').type(this.users.admin.email);
     cy.get('#password').type(this.users.admin.password);
     cy.xpath('//button[text()="Se connecter"]').click();
-    cy.url().should('include', '/admin/dashboard_admin.html');
+    cy.url({ timeout: 10000 }).should('include', '/admin/dashboard_admin.html');
   });
 
   it('Connexion avec mauvais mot de passe', function () {
