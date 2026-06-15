@@ -1,13 +1,9 @@
-require('cypress-xpath');
-
 describe("Prothésiste - Vérification du tableau (lecture seule)", () => {
 
-  beforeEach(() => {
-    cy.visit("http://localhost:3000");
-
-    cy.get('#email').type('prothesiste@email.fr');
-    cy.get('#password').type('12345678');
-    cy.xpath('//button[text()="Se connecter"]').click();
+  beforeEach(function () {
+    cy.fixture("users").then((users) => {
+      cy.login(users.prothesiste.email, users.prothesiste.password);
+    });
 
     cy.url().should('include', '/prothesiste/dashboard_prothesiste.html');
   });

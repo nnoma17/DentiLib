@@ -1,25 +1,24 @@
-require('cypress-xpath');
-
 describe('page acceuil', () => {
   
   let data;
-  beforeEach( () => {
+  beforeEach(function () {
+    cy.fixture('users').then((users) => {
+      this.users = users;
+    });
     cy.visit("http://localhost:3000");
   });
 
-  it('Connexion OK', () => {
-    cy.get('#email').type('email@gmail.com');
-    cy.get('#password').type('12345678');
+  it('Connexion OK', function () {
+    cy.get('#email').type(this.users.admin.email);
+    cy.get('#password').type(this.users.admin.password);
     cy.xpath('//button[text()="Se connecter"]').click();
-    //une erreur s'affiche
     cy.url().should('include', '/admin/dashboard_admin.html');
-  })
+  });
 
-  it('Connexion avec mauvais mot de passe', () => {
-    cy.get('#email').type('email@gmail.com');
+  it('Connexion avec mauvais mot de passe', function () {
+    cy.get('#email').type(this.users.admin.email);
     cy.get('#password').type('mauvaisMDP');
     cy.xpath('//button[text()="Se connecter"]').click();
-    //une erreur s'affiche
     cy.get('#errorLogin').should('be.visible').and('contain', 'Mot de passe incorrect');
   });
 

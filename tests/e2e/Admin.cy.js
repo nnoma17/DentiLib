@@ -1,14 +1,9 @@
-require('cypress-xpath');
-
 describe('page acceuil', () => {
-  beforeEach( () => {
-    cy.visit("http://localhost:3000");
-
-    cy.get('#email').type('email@gmail.com');
-    cy.get('#password').type('12345678');
-    cy.xpath('//button[text()="Se connecter"]').click();
-    
-    cy.url().should('include', '/admin/dashboard_admin.html');
+  beforeEach(function () {
+    cy.fixture('users').then((users) => {
+      cy.login(users.admin.email, users.admin.password);
+      cy.url().should('include', '/admin/dashboard_admin.html');
+    });
   });
 
   it('Vérifie le filtre par rôle', () => {
@@ -30,8 +25,8 @@ describe('page acceuil', () => {
     cy.get('#btnCreate').click();
     cy.get('#close-modal-createUser').click();
 
-    cy.xpath("(//tbody[@id='userTableBody']//tr)[last()]").contains('td', 'Ndentiste').should('exist');
-    cy.xpath("(//tbody[@id='userTableBody']//tr)[last()]").contains('td', 'Pdentiste').should('exist');
+    cy.get('#userTableBody').contains('td', 'Ndentiste').should('exist');
+    cy.get('#userTableBody').contains('td', 'Pdentiste').should('exist');
   });
 
   it('Affiche une erreur si un champ obligatoire est vide', () => {

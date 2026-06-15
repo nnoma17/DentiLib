@@ -1,5 +1,3 @@
-require('cypress-xpath');
-
 describe("Dentiste - Création d'une fiche patient", () => {
 
   beforeEach(function () {
@@ -7,11 +5,9 @@ describe("Dentiste - Création d'une fiche patient", () => {
       this.data = fixture;
     });
 
-    cy.visit("http://localhost:3000");
-
-    cy.get('#email').type('dentiste@email.fr');
-    cy.get('#password').type('12345678');
-    cy.xpath('//button[text()="Se connecter"]').click();
+    cy.fixture("users").then((users) => {
+      cy.login(users.dentiste.email, users.dentiste.password);
+    });
 
     cy.url().should('include', '/dentiste/dashboard_dentiste.html');
   });
@@ -26,30 +22,27 @@ describe("Dentiste - Création d'une fiche patient", () => {
     cy.get("#emailNamePatient").type(this.data.email);
     cy.get("#numSecuPatient").type(this.data.numSecu);
 
-    cy.xpath("//tr[descendant::td[contains(text(),'TestAuto-Acte 1')]]//input").click();
+    cy.xpath(`//tr[descendant::td[contains(text(),'${this.data.acteName}')]]//input`).click();
     cy.get("#commentProcedure").type(this.data.comment);
 
     cy.get("#createWorksheet").click();
 
     cy.url().should("include", "dashboard_dentiste");
 
-    cy.get("#worksheetTableBody")
-      .should("contain", this.data.firstName)
-      .and("contain", this.data.lastName)
-      .and("contain", this.data.email);
+    cy.get("#worksheetTableBody tr")
+      .contains(this.data.firstName)
+      .closest("tr")
+      .find("td:nth-child(2)").should("have.text", this.data.firstName + " " + this.data.lastName);
+      
+    cy.get("#worksheetTableBody tr")
+      .contains(this.data.firstName)
+      .closest("tr")
+      .find("td:nth-child(3)").should("have.text", this.data.email);
 
     cy.get("#worksheetTableBody tr")
       .contains(this.data.firstName)
-      .click();
-
-    cy.xpath("(//tbody[@id='worksheetTableBody']//tr)[last()]//td[2]")
-      .should("have.text", this.data.firstName + " " + this.data.lastName);
-
-    cy.xpath("(//tbody[@id='worksheetTableBody']//tr)[last()]//td[3]")
-      .should("have.text", this.data.email);
-
-    cy.xpath("(//tbody[@id='worksheetTableBody']//tr)[last()]//td[4]")
-      .should("have.text", this.data.numSecu);
+      .closest("tr")
+      .find("td:nth-child(4)").should("have.text", this.data.numSecu);
   });
 
 

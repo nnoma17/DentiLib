@@ -5,10 +5,6 @@ const {
   Log
 } = require("../../models");
 
-/* =========================
-   GET ALL PROCEDURES (ACTES)
-   → liste globale des actes
-========================= */
 exports.getAllProcedures = async (req, res) => {
   try {
     const procedures = await Acte.findAll();
@@ -27,11 +23,6 @@ exports.getAllProcedures = async (req, res) => {
   }
 };
 
-
-/* =========================
-   GET CATALOGUE PROTHÉSISTE
-   → actes + prix du prothésiste connecté
-========================= */
 exports.getCatalogue = async (req, res) => {
   try {
     const prothesistId = Number(req.user.id);

@@ -1,8 +1,6 @@
 const { Acte, Log } = require("../../models");
 
-/* =========================
-   CREATE PROCEDURE
-========================= */
+
 const createProcedure = async (req, res) => {
   const { name, description } = req.body;
 

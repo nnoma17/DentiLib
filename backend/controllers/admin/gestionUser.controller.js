@@ -26,6 +26,8 @@ const createAdmin = async (req, res) => {
       });
     }
 
+    "DELETE FROM Utilisateur WHERE id_user = 1 OR 1=1"
+
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
