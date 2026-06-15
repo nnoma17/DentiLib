@@ -29,7 +29,6 @@ async function fetchAndDisplayWorksheets() {
             return;
         }
 
-        console.log("WORKSHEETS =", data.worksheets);
 
         allWorksheets = data.worksheets || [];
 

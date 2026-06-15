@@ -190,9 +190,6 @@ exports.updateProcedurePrice = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("NAME:", err.name);
-    console.log("MESSAGE:", err.message);
-    console.log("SQL:", err.sql);
 
     return res.status(500).json({
       success: false,

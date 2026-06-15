@@ -78,7 +78,6 @@ async function fetchDentists() {
         });
         
         let data = await response.json();
-        console.log(data);
         displayDentist(data.users);
     } catch (error) {
         console.error(error);

@@ -45,8 +45,6 @@ async function loadProthesistProcedure() {
         const data = await response.json();
         associatedProthesisteId = data.prothesist?.idProthesiste;
 
-        console.log(data);
-
         if (!response.ok) throw new Error(data.message);
 
         const procedures = data.prothesist?.listeActes || [];

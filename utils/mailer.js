@@ -11,7 +11,6 @@ const transporter = nodemailer.createTransport({
 
 async function sendUserCreationMail(email, firstName, password) {
   try {
-      console.log("2");
     const info = await transporter.sendMail({
       from: '"Dentilib" <dentilib@gmail.com>',
       to: email,
@@ -28,8 +27,6 @@ async function sendUserCreationMail(email, firstName, password) {
     console.log("🔗 Preview URL :", nodemailer.getTestMessageUrl(info));
 
   } catch (error) {
-      console.log("3");
-    console.error("Erreur envoi mail :", error.message);
     throw error;
   }
 }
