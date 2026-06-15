@@ -1,0 +1,5 @@
+{
+  "admin": { "email": "admin@email.fr", "password": "12345678" },
+  "dentiste": { "email": "dentiste@email.fr", "password": "12345678" },
+  "prothesiste": { "email": "prothesiste@email.fr", "password": "12345678" }
+}

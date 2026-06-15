@@ -2,7 +2,6 @@ const titleNameUser = document.getElementById("TitleNameUser");
 
 function parseJwt (token) {
     try {
-        console.log(token.split('.'));
         return JSON.parse(atob(token.split('.')[1]));
     } catch (e) {
         return null;

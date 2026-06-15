@@ -5,10 +5,6 @@ const {
   Log
 } = require("../../models");
 
-/* =========================
-   GET ALL PROCEDURES (ACTES)
-   → liste globale des actes
-========================= */
 exports.getAllProcedures = async (req, res) => {
   try {
     const procedures = await Acte.findAll();
@@ -27,11 +23,6 @@ exports.getAllProcedures = async (req, res) => {
   }
 };
 
-
-/* =========================
-   GET CATALOGUE PROTHÉSISTE
-   → actes + prix du prothésiste connecté
-========================= */
 exports.getCatalogue = async (req, res) => {
   try {
     const prothesistId = Number(req.user.id);
@@ -199,9 +190,6 @@ exports.updateProcedurePrice = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("NAME:", err.name);
-    console.log("MESSAGE:", err.message);
-    console.log("SQL:", err.sql);
 
     return res.status(500).json({
       success: false,

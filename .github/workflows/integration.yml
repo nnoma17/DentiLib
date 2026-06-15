@@ -26,8 +26,13 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          node server.js &
+          node backend/server.js &
           SERVER_PID=$!
           npx wait-on https://dentilib-5sk3.onrender.com
           echo "Server is ready"
