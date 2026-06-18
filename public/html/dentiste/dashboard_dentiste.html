@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../styles/dashboard.css" />
 </head>
 <body>
-    <header>
+    <header> <!-- Entête -->
         <div class="inline-fields">
             <div class="inline">
                 <h2 id="TitleNameUser"></h2>
@@ -20,12 +20,12 @@
         </div>
     </header>
 
-    <main>
-        <section>
+    <main> <!-- Partie Principale -->
+        <section> <!-- Section pour la création -->
             <button id="createWorksheet">Nouvelle Fiche</button>
         </section>
 
-        <section>
+        <section> <!-- Section pour l'afficahge des fiches -->
             <div class="filters">
                 <input type="text" id="filter-patient-name" placeholder="Filtrer par nom patient">
                 <select id="filter-status">
@@ -33,7 +33,7 @@
                 </select>
             </div>
 
-            <table>
+            <table> 
                 <thead>
                     <tr>
                         <th>Numéro</th>
@@ -44,7 +44,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="worksheetTableBody"></tbody>
+                <tbody id="worksheetTableBody"></tbody> <!-- Où seront affichés les fiches -->
             </table>
         </section>
     </main>
