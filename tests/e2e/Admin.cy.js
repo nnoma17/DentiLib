@@ -35,4 +35,15 @@ describe('page acceuil', () => {
     cy.get('#errorMessage').should('be.visible').and('contain.text', 'Champs manquants');
   });
 
+  
+  it('Creer un dentiste', () => {
+  });
+
+  
+  it('Creer un prothesiste', () => {
+  });
+  
+  it('Creer un prothesiste non lié à un dentiste', () => {
+  });
+
 });
