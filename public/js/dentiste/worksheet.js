@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
 
 const formCreateWorksheet = document.getElementById("worksheetCreateForm");
 const btnAccueil = document.getElementById("homePage");
@@ -49,30 +50,34 @@ async function loadProthesistProcedure() {
 
         const procedures = data.prothesist?.listeActes || [];
 
-        procedureTableBody.innerHTML = "";
+        clearElement(procedureTableBody);
 
         if (procedures.length === 0) {
-            procedureTableBody.innerHTML =
-                `<tr><td colspan="4" style="text-align:center;">Aucun acte disponible</td></tr>`;
+            procedureTableBody.appendChild(
+                createErrorRow(4, "Aucun acte disponible", "text-align:center;")
+            );
             return;
         }
 
         procedures.forEach(item => {
             const acte = item.acte || {};
 
-            const tr = document.createElement("tr");
+            // Injection en textContent : neutralise les injections de script (XSS).
+            const checkCell = createCell("");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.dataset.name = acte.name || "";
+            checkbox.dataset.description = acte.description || "";
+            checkbox.dataset.price = String(item.price ?? 0);
+            checkbox.setAttribute("aria-label", `Sélectionner l'acte ${acte.name || ""}`);
+            checkCell.appendChild(checkbox);
 
-            tr.innerHTML = `
-                <td>
-                    <input type="checkbox"
-                        data-name="${acte.name}"
-                        data-description="${acte.description}"
-                        data-price="${item.price}">
-                </td>
-                <td>${acte.name}</td>
-                <td>${acte.description}</td>
-                <td>${item.price}</td>
-            `;
+            const tr = createRow([
+                checkCell,
+                createCell(acte.name),
+                createCell(acte.description),
+                createCell(item.price)
+            ], ["Sélection", "Nom", "Description", "Prix"]);
 
             procedureTableBody.appendChild(tr);
         });
@@ -111,6 +116,13 @@ async function createWorksheet() {
 
     if (!firstName || !lastName || !email || !numSecu) {
         updateError("Veuillez remplir tous les champs obligatoires");
+        return null;
+    }
+
+    // Validation du format de l'email cote client.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        updateError("Le format de l'email est incorrect");
         return null;
     }
 

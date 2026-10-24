@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
 
 const procedureTableBody = document.getElementById("procedureTableBody");
 const homePageBtn = document.getElementById("homePage");
@@ -46,27 +47,45 @@ async function loadUserInfoAndData() {
 //   Affichage des actes
 //-----------------------
 function displayProcedures(procedures, priceMap = {}) {
-    procedureTableBody.innerHTML = "";
+    // Injection en textContent : neutralise les injections de script (XSS).
+    clearElement(procedureTableBody);
 
     if (!procedures.length) {
-        procedureTableBody.innerHTML = `<tr><td colspan="4">Aucune procédure disponible</td></tr>`;
+        procedureTableBody.appendChild(createErrorRow(4, "Aucune procédure disponible"));
         return;
     }
 
     procedures.forEach(proc => {
         const price = priceMap[proc.idProcedure] ?? 0;
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${proc.name}</td>
-            <td>${proc.description}</td>
-            <td>
-                <input type="number" min="0" value="${price}" data-id="${proc.idProcedure}" class="price-input">
-            </td>
-            <td>
-                <button class="btn-save" data-id="${proc.idProcedure}">Enregistrer</button>
-            </td>
-        `;
+        const tr = createRow([
+            createCell(proc.name),
+            createCell(proc.description)
+        ], ["Nom", "Description"]);
+
+        // --- Colonne prix (saisie) ---
+        const priceCell = createCell("", "", "Prix");
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.min = "0";
+        priceInput.step = "0.01";
+        priceInput.value = String(price);
+        priceInput.dataset.id = proc.idProcedure;
+        priceInput.className = "price-input";
+        priceInput.setAttribute("aria-label", `Prix de l'acte ${proc.name || ""}`);
+        priceCell.appendChild(priceInput);
+        tr.appendChild(priceCell);
+
+        // --- Colonne action ---
+        const actionCell = createCell("", "", "Actions");
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "btn-save";
+        saveBtn.type = "button";
+        saveBtn.dataset.id = proc.idProcedure;
+        saveBtn.textContent = "Enregistrer";
+        actionCell.appendChild(saveBtn);
+        tr.appendChild(actionCell);
+
         procedureTableBody.appendChild(tr);
     });
 

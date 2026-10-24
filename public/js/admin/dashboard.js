@@ -1,4 +1,5 @@
 import { loadUserInfo, getUserById } from '../userInfo.js';
+import { createCell, createRow, clearElement } from '../domUtils.js';
 
 const userTableBody = document.getElementById("userTableBody");
 const disconnectBtn = document.getElementById("disconnect");
@@ -82,7 +83,8 @@ nameFilter.addEventListener("input", applyFilters);
 //     AFFICHAGE TABLE
 //------------------------
 async function displayUsers(users) {
-    userTableBody.innerHTML = "";
+    // Injection en textContent : neutralise les injections de script (XSS).
+    clearElement(userTableBody);
 
     for (const user of users) {
 
@@ -96,27 +98,44 @@ async function displayUsers(users) {
                 associatedUser = "-";
             }
         }
-        const row = document.createElement("tr");
 
-        row.innerHTML = `
-            <td>${user.lastName || ""}</td>
-            <td>${user.firstName || ""}</td>
-            <td>${user.email}</td>
-            <td>${user.role}</td>
-            <td>${associatedUser}</td>
-            <td>
-                <div class="div-button inline-fields" data-user-id="${user.id_user}">
-                    <div class="inline">
-                        <button class="btn-action modify modify-user" data-tooltip="Modifier"></button>
-                        <button class="btn-action delete delete-user" data-tooltip="Supprimer"></button>
-                    </div>
-                </div>
-            </td>
-        `;
+        const row = createRow([
+            createCell(user.lastName || ""),
+            createCell(user.firstName || ""),
+            createCell(user.email),
+            createCell(user.role),
+            createCell(associatedUser)
+        ], ["Nom", "Prénom", "Email", "Rôle", "Professionnel associé"]);
+
+        // --- Colonne actions ---
+        const actionsCell = createCell("", "", "Actions");
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "div-button inline-fields";
+        actionsDiv.dataset.userId = user.id_user;
+
+        const inlineDiv = document.createElement("div");
+        inlineDiv.className = "inline";
+
+        const modifyBtn = document.createElement("button");
+        modifyBtn.className = "btn-action modify modify-user";
+        modifyBtn.type = "button";
+        modifyBtn.dataset.tooltip = "Modifier";
+        modifyBtn.setAttribute("aria-label", `Modifier ${user.firstName} ${user.lastName}`);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn-action delete delete-user";
+        deleteBtn.type = "button";
+        deleteBtn.dataset.tooltip = "Supprimer";
+        deleteBtn.setAttribute("aria-label", `Supprimer ${user.firstName} ${user.lastName}`);
+
+        inlineDiv.appendChild(modifyBtn);
+        inlineDiv.appendChild(deleteBtn);
+        actionsDiv.appendChild(inlineDiv);
+        actionsCell.appendChild(actionsDiv);
+        row.appendChild(actionsCell);
 
         // ------ Suppression -----
         // ------------------------
-        const deleteBtn = row.querySelector(".delete-user");
         deleteBtn.addEventListener("click", () => {
             if (!deleteBtn.classList.contains("btn-confirm")) {
                 deleteBtn.classList.add("btn-confirm");
@@ -131,7 +150,6 @@ async function displayUsers(users) {
 
         // ----- Modification -----
         // ------------------------
-        const modifyBtn = row.querySelector(".modify-user");
         modifyBtn.addEventListener("click", () => {
 
             inputFirstName.value = user.firstName || "";
@@ -146,7 +164,7 @@ async function displayUsers(users) {
                 divListDentisteModify.style.display = "none";
             } else {
                 divListDentisteModify.style.display = "block";
-                listDentisteSelect.innerHTML = "";
+                clearElement(listDentisteSelect);
 
                 if (user.associatedUser) {
                     const option = document.createElement("option");

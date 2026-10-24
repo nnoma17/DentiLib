@@ -6,6 +6,7 @@ const {
     getAllProcedures
 } = require("../../controllers/admin/gestionProcedure.controller");
 const authMiddleware = require("../../middleware/authMiddleware");
+const { requireRole } = require("../../middleware/authMiddleware");
 
 const router = express.Router();
 router.post('/admin/gestionProcedure/create_Procedure', authMiddleware, createProcedure);

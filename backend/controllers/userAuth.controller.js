@@ -1,6 +1,8 @@
 const User = require("../models/utilisateur");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { isValidEmail, isNonEmptyString, sanitizeText } = require("../../utils/validators");
+const { serializeUser } = require("../utils/serializer");
 
 /* =========================
    LOGIN USER
@@ -9,8 +11,23 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // Validation serveur des donnees de connexion.
+    if (!isNonEmptyString(email) || !isNonEmptyString(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Champs manquants"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(404).json({
+        success: false,
+        message: "L'utilisateur n'existe pas"
+      });
+    }
+
     const user = await User.findOne({
-      where: { email }
+      where: { email: sanitizeText(email).toLowerCase() }
     });
 
     if (!user) {
@@ -29,6 +46,8 @@ const loginUser = async (req, res) => {
       });
     }
 
+    // Le jeton ne contient que l'identifiant et le role : aucune donnee
+    // sensible (email, nom, hash) n'y figure.
     const token = jwt.sign(
       {
         id: user.id_user,
@@ -41,7 +60,8 @@ const loginUser = async (req, res) => {
     return res.json({
       message: "Vous êtes connecté",
       token,
-      role: user.role
+      role: user.role,
+      user: serializeUser(user)
     });
 
   } catch (error) {
@@ -73,7 +93,7 @@ const getMe = async (req, res) => {
 
     return res.json({
       success: true,
-      user
+      user: serializeUser(user)
     });
 
   } catch (error) {

@@ -34,11 +34,11 @@ L'application est accessible sur `http://localhost:3000`
 
 ## Comptes de test
 
-|      Rôle      |       Email      | Mot de passe |
-|----------------|------------------|--------------|
-| Administrateur | admin@test.fr    | 12345678     |
-| Dentiste       | dentiste@test.fr | 12345678     |
-| Prothésiste    | prothese@test.fr | 12345678     |
+|      Rôle      |       Email       | Mot de passe |
+|----------------|-------------------|--------------|
+| Administrateur | admin@email.fr    | 12345678     |
+| Dentiste       | dentiste@email.fr | 12345678     |
+| Prothésiste    | prothese@email.fr | 12345678     |
 
 ## Lancer les tests
 

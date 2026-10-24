@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement } from "../domUtils.js";
 
 //--------------------
 //   Elements du dom
@@ -82,6 +83,13 @@ function validateWorksheetFields() {
         return false;
     }
 
+    // Validation du format de l'email cote client.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        updateError("Le format de l'email est incorrect");
+        return false;
+    }
+
     if (!/^\d+$/.test(numSecu)) {
         updateError("Le numéro de sécurité sociale doit contenir uniquement des chiffres");
         return false;
@@ -147,29 +155,32 @@ async function loadWorksheet(id) {
         }
 
         const allProcedures = procData.prothesist?.listeActes || [];
-        procedureTableBody.innerHTML = "";
+        clearElement(procedureTableBody);
 
         allProcedures.forEach(procItem => {
-            const procDoc = procItem.acte;
+            const procDoc = procItem.acte || {};
             const isChecked = worksheetActeNames.includes(
-                procDoc.name.trim().toLowerCase()
+                String(procDoc.name || "").trim().toLowerCase()
             );
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>
-                    <input type="checkbox"
-                        data-id="${procDoc.idProcedure}"
-                        data-name="${procDoc.name}"
-                        data-description="${procDoc.description}"
-                        data-price="${procItem.price || 0}"
-                        ${isChecked ? "checked" : ""}
-                    >
-                </td>
-                <td>${procDoc.name}</td>
-                <td>${procDoc.description}</td>
-                <td>${procItem.price || 0}</td>
-            `;
+            // Injection en textContent : neutralise les injections de script (XSS).
+            const checkCell = createCell("");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.dataset.id = procDoc.idProcedure;
+            checkbox.dataset.name = procDoc.name || "";
+            checkbox.dataset.description = procDoc.description || "";
+            checkbox.dataset.price = String(procItem.price || 0);
+            checkbox.checked = isChecked;
+            checkbox.setAttribute("aria-label", `Acte ${procDoc.name || ""}`);
+            checkCell.appendChild(checkbox);
+
+            const tr = createRow([
+                checkCell,
+                createCell(procDoc.name),
+                createCell(procDoc.description),
+                createCell(procItem.price || 0)
+            ]);
 
             procedureTableBody.appendChild(tr);
         });

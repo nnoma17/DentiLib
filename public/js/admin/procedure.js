@@ -1,3 +1,5 @@
+import { createCell, createRow, clearElement } from "../domUtils.js";
+
 const procedureTableBody = document.getElementById("procedureTableBody");
 const btnAccueil = document.getElementById("homePage");
 
@@ -39,27 +41,42 @@ export async function getProcedures() {
 function displayProcedures(procedures) {
     if (!procedureTableBody) return;
 
-    procedureTableBody.innerHTML = "";
+    // Injection en textContent : neutralise les injections de script (XSS).
+    clearElement(procedureTableBody);
 
     for (const procedure of procedures) {
-        const row = document.createElement("tr");
+        const row = createRow([
+            createCell(procedure.name || ""),
+            createCell(procedure.description || "")
+        ], ["Actes", "Descriptions"]);
 
-        row.innerHTML = `
-            <td>${procedure.name || ""}</td>
-            <td>${procedure.description || ""}</td>
-            <td>
-                <div class="div-button inline-fields">
-                    <div class="inline">
-                        <button class="btn-action modify modify-procedure" data-tooltip="Modifier"></button>
-                        <button class="btn-action delete delete-procedure" data-tooltip="Supprimer"></button>
-                    
-                    </div>
-                </div>
-            </td>
-        `;
+        // --- Colonne actions ---
+        const actionsCell = createCell("", "", "Actions");
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "div-button inline-fields";
+
+        const inlineDiv = document.createElement("div");
+        inlineDiv.className = "inline";
+
+        const modifyBtn = document.createElement("button");
+        modifyBtn.className = "btn-action modify modify-procedure";
+        modifyBtn.type = "button";
+        modifyBtn.dataset.tooltip = "Modifier";
+        modifyBtn.setAttribute("aria-label", `Modifier l'acte ${procedure.name || ""}`);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn-action delete delete-procedure";
+        deleteBtn.type = "button";
+        deleteBtn.dataset.tooltip = "Supprimer";
+        deleteBtn.setAttribute("aria-label", `Supprimer l'acte ${procedure.name || ""}`);
+
+        inlineDiv.appendChild(modifyBtn);
+        inlineDiv.appendChild(deleteBtn);
+        actionsDiv.appendChild(inlineDiv);
+        actionsCell.appendChild(actionsDiv);
+        row.appendChild(actionsCell);
 
         // --- SUPPRESSION ---
-        const deleteBtn = row.querySelector(".delete-procedure");
         deleteBtn.addEventListener("click", () => {
 
             if (!deleteBtn.classList.contains("btn-confirm")) {
@@ -74,7 +91,6 @@ function displayProcedures(procedures) {
         });
 
         // --- MODIFICATION ---
-        const modifyBtn = row.querySelector(".modify-procedure");
         modifyBtn.addEventListener("click", () => {
             inputName.value = procedure.name;
             inputDescription.value = procedure.description;

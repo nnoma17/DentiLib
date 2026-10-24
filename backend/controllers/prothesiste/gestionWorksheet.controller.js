@@ -1,6 +1,8 @@
 const { FicheTravaux, Utilisateur, Log, Acte } = require("../../models");
 const { WORKSHEET_STATUS } = require("../../../utils/constants");
 const { Op } = require("sequelize");
+const { findAccessibleWorksheet } = require("../../utils/accessControl");
+const { canActOnStatus, canSetStatus } = require("../../../utils/workflow");
 
 exports.getAllWorksheets = async (req, res) => {
   try {
@@ -25,16 +27,20 @@ exports.getAllWorksheets = async (req, res) => {
 
 exports.getWorksheetById = async (req, res) => {
   try {
-    const worksheet = await FicheTravaux.findOne({
-      where: { idWorkSheet: req.params.worksheetId },
-      include: [{ model: Acte, through: { attributes: ["price", "description"] } }]
-    });
+    // Controle d'acces : la fiche doit etre confiee a ce prothesiste
+    // et avoir ete validee par le dentiste (OWASP A05 - IDOR).
+    const worksheet = await findAccessibleWorksheet(req.user, req.params.worksheetId);
 
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
 
-    const plain = worksheet.get({ plain: true });
+    const full = await FicheTravaux.findOne({
+      where: { idWorkSheet: worksheet.idWorkSheet },
+      include: [{ model: Acte, through: { attributes: ["price", "description"] } }]
+    });
+
+    const plain = full.get({ plain: true });
 
     const procedure = (plain.Actes || []).map(acte => ({
       name: acte.name,
@@ -82,14 +88,31 @@ exports.updateWorksheetStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Statut invalide" });
     }
 
-    const worksheet = await FicheTravaux.findOne({ where: { idWorkSheet: worksheetId } });
+    // Regle de gestion : le prothesiste fait passer la fiche de "En attente"
+    // a "En cours" puis "Termine" (jamais retour a "A valider").
+    if (!canSetStatus(req.user.role, status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à placer la fiche dans ce statut"
+      });
+    }
+
+    // Controle d'acces : la fiche doit etre confiee a ce prothesiste.
+    const worksheet = await findAccessibleWorksheet(req.user, worksheetId);
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
 
-    await FicheTravaux.update({ status }, { where: { idWorkSheet: worksheetId } });
+    if (!canActOnStatus(req.user.role, worksheet.status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Cette fiche n'est pas à votre charge"
+      });
+    }
 
-    await Log.create({ user_id: req.user.id, action: "MODIFICATION_STATUS_FICHE", target_id: worksheetId });
+    await FicheTravaux.update({ status }, { where: { idWorkSheet: worksheet.idWorkSheet } });
+
+    await Log.create({ user_id: req.user.id, action: "MODIFICATION_STATUS_FICHE", target_id: worksheet.idWorkSheet });
 
     return res.json({
       success: true,

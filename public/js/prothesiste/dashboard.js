@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
 
 const worksheetTableBody = document.getElementById("worksheetTableBody");
 const disconnectBtn = document.getElementById("disconnect");
@@ -37,8 +38,8 @@ async function fetchAndDisplayWorksheets() {
 
     } catch (error) {
         console.error(error);
-        worksheetTableBody.innerHTML =
-            `<tr><td colspan="6">Erreur récupération worksheets</td></tr>`;
+        clearElement(worksheetTableBody);
+        worksheetTableBody.appendChild(createErrorRow(6, "Erreur récupération worksheets"));
     }
 }
 
@@ -46,31 +47,34 @@ async function fetchAndDisplayWorksheets() {
 //    Affiche les actes
 //--------------------------
 function displayWorksheets(worksheets) {
-    worksheetTableBody.innerHTML = "";
+    // Injection en textContent : neutralise les injections de script (XSS).
+    clearElement(worksheetTableBody);
 
     if (!worksheets.length) {
-        worksheetTableBody.innerHTML =
-            `<tr><td colspan="6">Aucune fiche disponible</td></tr>`;
+        worksheetTableBody.appendChild(createErrorRow(6, "Aucune fiche disponible"));
         return;
     }
 
     worksheets.forEach(ws => {
-        const tr = document.createElement("tr");
+        const tr = createRow([
+            createCell(ws.numWorkSheet),
+            createCell(`${ws.firstNamePatient} ${ws.lastNamePatient}`),
+            createCell(ws.emailNamePatient),
+            createCell(ws.numSecuPatient),
+            createCell(ws.status)
+        ], ["Numéro", "Patient", "Email", "Numéro sécurité", "Statut"]);
 
-        tr.innerHTML = `
-            <td>${ws.numWorkSheet}</td>
-            <td>${ws.firstNamePatient} ${ws.lastNamePatient}</td>
-            <td>${ws.emailNamePatient}</td>
-            <td>${ws.numSecuPatient}</td>
-            <td>${ws.status}</td>
-            <td>
-                <button class="btn-action detail-btn" data-id="${ws.idWorkSheet}">
-                    Détail
-                </button>
-            </td>
-        `;
+        // --- Colonne actions ---
+        const actionsCell = createCell("", "", "Actions");
+        const detailBtn = document.createElement("button");
+        detailBtn.className = "btn-action detail-btn";
+        detailBtn.type = "button";
+        detailBtn.dataset.id = ws.idWorkSheet;
+        detailBtn.textContent = "Détail";
+        actionsCell.appendChild(detailBtn);
+        tr.appendChild(actionsCell);
 
-        tr.querySelector(".detail-btn").addEventListener("click", () => {
+        detailBtn.addEventListener("click", () => {
             window.location.href =
                 `/html/prothesiste/worksheet_detail.html?id=${ws.idWorkSheet}`;
         });
@@ -103,8 +107,12 @@ function applyFilters() {
 function populateStatusFilter(worksheets) {
     const statuses = [...new Set(worksheets.map(ws => ws.status))];
 
-    filterStatusSelect.innerHTML =
-        `<option value="ALL">Tous</option>`;
+    clearElement(filterStatusSelect);
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "ALL";
+    defaultOption.textContent = "Tous";
+    filterStatusSelect.appendChild(defaultOption);
 
     statuses.forEach(status => {
         const option = document.createElement("option");

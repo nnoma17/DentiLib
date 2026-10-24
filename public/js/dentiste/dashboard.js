@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
 
 const worksheetTableBody = document.getElementById("worksheetTableBody");
 const disconnectBtn = document.getElementById("disconnect");
@@ -10,31 +11,42 @@ let confirmTimeout = null;
 //  Affichage des fiches de travaux
 //-----------------------------
 async function displayWorksheets(worksheets) {
-    worksheetTableBody.innerHTML = "";
+    // Les donnees du serveur sont injectees en textContent (pas innerHTML)
+    // afin de neutraliser toute injection de script (XSS).
+    clearElement(worksheetTableBody);
 
     for (const worksheet of worksheets) {
-        const row = document.createElement("tr");
+        const row = createRow([
+            createCell(worksheet.numWorkSheet),
+            createCell(`${worksheet.firstNamePatient} ${worksheet.lastNamePatient}`),
+            createCell(worksheet.emailNamePatient),
+            createCell(worksheet.numSecuPatient),
+            createCell(worksheet.status)
+        ], ["Numéro", "Patient", "Email", "Numéro sécurité", "Statut"]);
 
-        row.innerHTML = `
-            <td>${worksheet.numWorkSheet}</td>
-            <td>${worksheet.firstNamePatient} ${worksheet.lastNamePatient}</td>
-            <td>${worksheet.emailNamePatient}</td>
-            <td>${worksheet.numSecuPatient}</td>
-            <td>${worksheet.status}</td>
-            <td>
-                <div class="div-button inline-fields" data-worksheet-id="${worksheet.idWorkSheet}">
-                    <button class="btn-action detail-worksheet">Détail</button>
-                    <button class="btn-action delete delete-worksheet icon-action"></button>
-                </div>
-            </td>
-        `;
+        // --- Colonne actions ---
+        const actionsCell = createCell("", "", "Actions");
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "div-button inline-fields";
+        actionsDiv.dataset.worksheetId = worksheet.idWorkSheet;
+
+        const detailBtn = document.createElement("button");
+        detailBtn.className = "btn-action detail-worksheet";
+        detailBtn.type = "button";
+        detailBtn.textContent = "Détail";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn-action delete delete-worksheet icon-action";
+        deleteBtn.type = "button";
+        deleteBtn.setAttribute("aria-label", `Supprimer la fiche ${worksheet.numWorkSheet}`);
+
+        actionsDiv.appendChild(detailBtn);
+        actionsDiv.appendChild(deleteBtn);
+        actionsCell.appendChild(actionsDiv);
+        row.appendChild(actionsCell);
 
         const status = worksheet.status;
         const canDelete = status === "A valider" || status === "Termine";
-
-        const deleteBtn = row.querySelector(".delete-worksheet");
-
-        
 
         /* ----- Btn Suppression ----- */
         deleteBtn.addEventListener("click", () => {
@@ -56,7 +68,6 @@ async function displayWorksheets(worksheets) {
         }
 
         /* ----- Btn Détail ----- */
-        const detailBtn = row.querySelector(".detail-worksheet");
         detailBtn.addEventListener("click", () => {
             window.location.href = `worksheet_detail.html?id=${worksheet.idWorkSheet}`;
         });
@@ -84,7 +95,10 @@ async function fetchAndDisplayWorksheets() {
         }
     } catch (error) {
         console.error("Erreur fetchAndDisplayWorksheets :", error);
-        worksheetTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Erreur lors du chargement des worksheets</td></tr>`;
+        clearElement(worksheetTableBody);
+        worksheetTableBody.appendChild(
+            createErrorRow(6, "Erreur lors du chargement des worksheets", "text-align:center;color:red;")
+        );
     }
 }
 

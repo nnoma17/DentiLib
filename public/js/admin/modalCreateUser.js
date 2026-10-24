@@ -18,7 +18,62 @@ const divListDentisteSelect = document.getElementById("div-list-dentiste");
 const listDentisteSelect = document.getElementById("listDentiste");
 const errorMessage = document.getElementById("errorMessage");
 
+/**
+ * Valide le formulaire de creation d'utilisateur cote client.
+ * @returns {boolean} true si le formulaire est valide
+ */
+function validateCreateUserForm() {
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const role = roleSelect.value;
+    const password = passwordInput.value;
+
+    if (!firstName || !lastName || !email || !password) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Champs manquants";
+        return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Le format de l'email est incorrect";
+        emailInput.focus();
+        return false;
+    }
+
+    if (password.length < 6) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Mot de passe trop court";
+        passwordInput.focus();
+        return false;
+    }
+
+    if (!role || role === "N/A") {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Veuillez choisir un rôle";
+        roleSelect.focus();
+        return false;
+    }
+
+    // Le prothesiste doit etre rattache a un dentiste.
+    if (role === "PROTHESISTE" && !listDentisteSelect.value) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Veuillez sélectionner un dentiste";
+        listDentisteSelect.focus();
+        return false;
+    }
+
+    return true;
+}
+
 async function createUser() {
+    // Validation client avant l'appel serveur.
+    if (!validateCreateUserForm()) {
+        return;
+    }
+
     try {
         const response = await fetch("/api/admin/create_User", {
             headers: {
@@ -27,11 +82,11 @@ async function createUser() {
             },
             method: "POST",
             body: JSON.stringify({
-                firstName: firstNameInput.value,
-                lastName: lastNameInput.value,
-                email: emailInput.value,
+                firstName: firstNameInput.value.trim(),
+                lastName: lastNameInput.value.trim(),
+                email: emailInput.value.trim(),
                 role: roleSelect.value,
-                siret: siretInput.value,
+                siret: siretInput.value.trim(),
                 password: passwordInput.value,
                 dentisteId: roleSelect.value === "PROTHESISTE"
                     ? listDentisteSelect.value

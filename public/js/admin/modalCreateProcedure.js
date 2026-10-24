@@ -12,6 +12,22 @@ const descriptionInput = document.getElementById("description");
 const errorMessage = document.getElementById("errorMessage");
 
 async function createProcedure() {
+    // Validation client avant l'appel serveur.
+    const name = nameInput.value.trim();
+    const description = descriptionInput.value.trim();
+
+    if (!name || !description) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Champs manquants";
+        return;
+    }
+
+    if (name.length > 150) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Le nom de l'acte ne doit pas dépasser 150 caractères";
+        return;
+    }
+
     try {
         const response = await fetch("/api/admin/gestionProcedure/create_Procedure", {
             method: "POST",
@@ -20,8 +36,8 @@ async function createProcedure() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: nameInput.value.trim(),
-                description: descriptionInput.value.trim()
+                name: name,
+                description: description
             })
         });
 

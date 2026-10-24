@@ -8,6 +8,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/**
+ * Echappe les caracteres HTML sensibles.
+ * Les donnees inserees dans un corps d'e-mail HTML doivent etre echappees
+ * pour eviter l'injection de contenu (HTML injection / phishing).
+ * @param {*} value
+ * @returns {string}
+ */
+function escapeHtml(value) {
+  if (value === undefined || value === null) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 async function sendUserCreationMail(email, firstName, password) {
   try {
@@ -16,9 +32,9 @@ async function sendUserCreationMail(email, firstName, password) {
       to: email,
       subject: "Votre compte Dentilib",
       html: `
-        <h2>Bienvenue ${firstName}</h2>
+        <h2>Bienvenue ${escapeHtml(firstName)}</h2>
         <p>Votre compte a été créé avec succès.</p>
-        <p><strong>Mot de passe :</strong> ${password}</p>
+        <p><strong>Mot de passe :</strong> ${escapeHtml(password)}</p>
         <p>Ce message va s'autodétruire dans 30sec</p>
       `
     });
@@ -34,5 +50,6 @@ async function sendUserCreationMail(email, firstName, password) {
 
 module.exports = {
     transporter,
-    sendUserCreationMail
+    sendUserCreationMail,
+    escapeHtml
 };

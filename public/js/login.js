@@ -10,32 +10,55 @@ if (token){
   window.location.href = 'home.html' 
 }
 
+/**
+ * Affiche un message d'erreur a l'utilisateur.
+ * @param {string} message
+ */
+function showError(message) {
+    errorLogin.textContent = message;
+    errorLogin.style.display = "block";
+}
+
+/**
+ * Valide le formulaire cote client avant l'envoi au serveur.
+ * @returns {boolean} true si le formulaire est valide
+ */
+function validateLoginForm() {
+    const email = emailLogin.value.trim();
+    const password = passwordLogin.value;
+
+    if (!email || !password) {
+        showError("Veuillez remplir tous les champs");
+        return false;
+    }
+
+    //Le format de l'email est incorrect
+    //expliquation de la regex :
+    //^[^\s@]+      : commence par un ou plusieurs caractères qui ne sont pas des espaces ou des @
+    //@             : suivi d'un @
+    //[^\s@]+       : suivi d'un ou plusieurs caractères qui ne sont pas des espaces ou des @
+    //\.            : suivi d'un point littéral
+    //[^\s@]+$      : se termine par un ou plusieurs caractères qui ne sont pas des espaces ou des @
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError("Le format de l'email est incorrect");
+        emailLogin.focus();
+        return false;
+    }
+
+    return true;
+}
+
 if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         // Nettoyage des champs
         const email = emailLogin.value.trim();
-        const password = passwordLogin.value.trim();
+        const password = passwordLogin.value;
 
-        // Vérification des champs vides
-        if (!email || !password) {
-            errorLogin.textContent = "Veuillez remplir tous les champs";
-            errorLogin.style.display = "block";
-            return;
-        }
-
-        //Le format de l'email est incorrect
-        //expliquation de la regex :
-        //^[^\s@]+      : commence par un ou plusieurs caractères qui ne sont pas des espaces ou des @
-        //@             : suivi d'un @
-        //[^\s@]+       : suivi d'un ou plusieurs caractères qui ne sont pas des espaces ou des @
-        //\.            : suivi d'un point littéral
-        //[^\s@]+$      : se termine par un ou plusieurs caractères qui ne sont pas des espaces ou des @
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(email)){
-            errorLogin.textContent = "Le format de l'email est incorrect";
-            errorLogin.style.display = "block";
+        // Validation client (la validation serveur reste systematique)
+        if (!validateLoginForm()) {
             return;
         }
 
@@ -68,13 +91,11 @@ if (loginForm) {
                 }
                 
             } else {
-                errorLogin.textContent = responseData.message;
-                errorLogin.style.display = "block";
+                showError(responseData.message || "Connexion impossible");
             }
         } catch (error) {
             console.error("Erreur de connexion :", error);
-            errorLogin.textContent = "Une erreur est survenue. Veuillez réessayer.";
-            errorLogin.style.display = "block";
+            showError("Une erreur est survenue. Veuillez réessayer.");
         }
     });
 }

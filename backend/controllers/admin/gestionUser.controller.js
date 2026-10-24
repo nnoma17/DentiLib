@@ -1,8 +1,15 @@
 const { Utilisateur, Log } = require("../../models");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const { sendUserCreationMail } = require("../../../utils/mailer");
 const { Op } = require("sequelize");
+const { serializeUser, serializeUsers } = require("../../utils/serializer");
+const {
+  isValidEmail,
+  isValidPassword,
+  sanitizeText,
+  MAX_NAME_LENGTH
+} = require("../../../utils/validators");
+const { USER_ROLES } = require("../../../utils/constants");
 
 /* =========================
    CREATE ADMIN
@@ -11,6 +18,7 @@ const createAdmin = async (req, res) => {
   const { firstName, lastName, email, siret, password } = req.body;
 
   try {
+    // Validation serveur : le client n'est jamais considere comme fiable.
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -18,19 +26,17 @@ const createAdmin = async (req, res) => {
       });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Format email invalide"
       });
     }
 
-
-    if (password.length < 6) {
+    if (!isValidPassword(password)) {
       return res.status(400).json({
         success: false,
-        message: "Mot de spasse trop court"
+        message: "Mot de passe trop court"
       });
     }
 
@@ -49,12 +55,12 @@ const createAdmin = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await Utilisateur.create({
-      lastName,
-      firstName,
-      email,
+      lastName: sanitizeText(lastName, MAX_NAME_LENGTH),
+      firstName: sanitizeText(firstName, MAX_NAME_LENGTH),
+      email: sanitizeText(email).toLowerCase(),
       password: hashedPassword,
-      role: "ADMIN",
-      siret
+      role: USER_ROLES.ADMIN,
+      siret: sanitizeText(siret, 20)
     });
 
     await Log.create({
@@ -66,7 +72,7 @@ const createAdmin = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Administrateur créé",
-      user
+      user: serializeUser(user)
     });
 
   } catch (error) {
@@ -86,6 +92,7 @@ const createUser = async (req, res) => {
   const { firstName, lastName, email, password, role, siret, dentisteId } = req.body;
 
   try {
+    // Validation serveur : le client n'est jamais considere comme fiable.
     if (!firstName || !lastName || !email || !password || !role) {
       return res.status(400).json({
         success: false,
@@ -93,7 +100,23 @@ const createUser = async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
+    // Le role doit faire partie de l'enum applicatif : un role arbitraire
+    // ne doit pas pouvoir etre cree par l'API.
+    if (![USER_ROLES.DENTISTE, USER_ROLES.PROTHESISTE].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Rôle invalide"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Format email invalide"
+      });
+    }
+
+    if (!isValidPassword(password)) {
       return res.status(400).json({
         success: false,
         message: "Mot de passe trop court"
@@ -115,12 +138,12 @@ const createUser = async (req, res) => {
 
     // 🔥 création user
     const user = await Utilisateur.create({
-      lastName,
-      firstName,
-      email,
+      lastName: sanitizeText(lastName, MAX_NAME_LENGTH),
+      firstName: sanitizeText(firstName, MAX_NAME_LENGTH),
+      email: sanitizeText(email).toLowerCase(),
       password: hashedPassword,
       role,
-      siret
+      siret: sanitizeText(siret, 20)
     });
 
     // 🔗 liaison dentiste -> prothésiste
@@ -154,7 +177,13 @@ const createUser = async (req, res) => {
       );
     }
 
-    await sendUserCreationMail(email, firstName, password);
+    // L'envoi du mail ne doit pas faire echouer la creation du compte
+    // (le serveur de messagerie peut etre indisponible).
+    try {
+      await sendUserCreationMail(email, firstName, password);
+    } catch (mailError) {
+      console.error("[MAIL] Envoi du mail de creation impossible :", mailError.message);
+    }
 
     await Log.create({
       user_id: req.user.id,
@@ -165,7 +194,7 @@ const createUser = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Utilisateur créé",
-      user
+      user: serializeUser(user)
     });
 
   } catch (error) {
@@ -304,7 +333,18 @@ const getUserById = async (req, res) => {
       });
     }
 
-    return res.status(200).json({ success: true, user });
+    // Controle d'acces : l'ADMIN peut consulter tous les profils,
+    // un utilisateur authentifie ne peut consulter que le sien.
+    const isSelf = Number(req.params.userId) === Number(req.user?.id);
+    if (req.user?.role !== "ADMIN" && !isSelf) {
+      return res.status(403).json({
+        success: false,
+        message: "Accès non autorisé pour votre rôle"
+      });
+    }
+
+    // Le hash du mot de passe ne doit jamais quitter le serveur.
+    return res.status(200).json({ success: true, user: serializeUser(user) });
 
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -314,7 +354,7 @@ const getUserById = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await Utilisateur.findAll();
-    return res.status(200).json({ success: true, users });
+    return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -327,7 +367,7 @@ const getAllDentists = async (req, res) => {
       where: { role: "DENTISTE" }
     });
 
-    return res.status(200).json({ success: true, users });
+    return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -342,7 +382,7 @@ const getAllUsersNotAdmin = async (req, res) => {
       }
     });
 
-    return res.status(200).json({ success: true, users });
+    return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
     return res.status(500).json({ error: error.message });

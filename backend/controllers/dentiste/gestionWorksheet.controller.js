@@ -1,6 +1,16 @@
 const { FicheTravaux, Utilisateur, Log, Acte, FicheTravauxActe, CatalogueProthesiste } = require("../../models");
-const { WORKSHEET_STATUS } = require("../../../utils/constants");
-const { Op } = require("sequelize");
+const { WORKSHEET_STATUS, USER_ROLES } = require("../../../utils/constants");
+const { findAccessibleWorksheet } = require("../../utils/accessControl");
+const { canActOnStatus, canDeleteWorksheet, canSetStatus } = require("../../../utils/workflow");
+const {
+  isValidEmail,
+  isValidNumSecu,
+  sanitizeText,
+  toPositiveInt,
+  MAX_NAME_LENGTH,
+  MAX_EMAIL_LENGTH,
+  MAX_COMMENT_LENGTH
+} = require("../../../utils/validators");
 
 /* =========================
    CREATE WORKSHEET + ACTES
@@ -20,8 +30,33 @@ const createWorksheet = async (req, res) => {
 
     const idDentist = req.user.id;
 
+    // ---- Validation serveur des donnees de la fiche ----
     if (!numWorkSheet || !firstNamePatient || !lastNamePatient || !emailNamePatient || !numSecuPatient) {
       return res.status(400).json({ success: false, message: "Champs manquants" });
+    }
+
+    if (!isValidEmail(emailNamePatient)) {
+      return res.status(400).json({ success: false, message: "Format email invalide" });
+    }
+
+    if (!isValidNumSecu(numSecuPatient)) {
+      return res.status(400).json({
+        success: false,
+        message: "Le numéro de sécurité sociale doit contenir uniquement des chiffres"
+      });
+    }
+
+    // Le prothesiste doit exister et etre de type PROTHESISTE.
+    const prothesisteId = toPositiveInt(idProthesiste);
+    if (!prothesisteId) {
+      return res.status(400).json({ success: false, message: "Prothésiste manquant" });
+    }
+
+    const prothesiste = await Utilisateur.findOne({
+      where: { id_user: prothesisteId, role: USER_ROLES.PROTHESISTE }
+    });
+    if (!prothesiste) {
+      return res.status(404).json({ success: false, message: "Prothésiste introuvable" });
     }
 
     const existing = await FicheTravaux.findOne({ where: { numWorkSheet } });
@@ -32,13 +67,13 @@ const createWorksheet = async (req, res) => {
     const worksheet = await FicheTravaux.create({
       numWorkSheet,
       status: WORKSHEET_STATUS.A_VALIDER,
-      comment,
-      lastNamePatient,
-      firstNamePatient,
-      emailNamePatient,
-      numSecuPatient,
+      comment: sanitizeText(comment, MAX_COMMENT_LENGTH),
+      lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
+      firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
+      emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
+      numSecuPatient: sanitizeText(numSecuPatient, 15),
       idDentist,
-      idProthesiste
+      idProthesiste: prothesisteId
     });
 
     // Le front envoie des objets {name, description, price} sans idProcedure
@@ -78,8 +113,10 @@ const createWorksheet = async (req, res) => {
 ========================= */
 const getAllWorksheets = async (req, res) => {
   try {
+    // Reserve a l'ADMIN : liste globale des fiches pour le back-office.
     const worksheets = await FicheTravaux.findAll({
-      include: [{ model: Acte, through: { attributes: ["price"] } }]
+      include: [{ model: Acte, through: { attributes: ["price"] } }],
+      order: [["date_creation", "DESC"]]
     });
     return res.status(200).json({ success: true, count: worksheets.length, worksheets });
   } catch (error) {
@@ -111,13 +148,18 @@ const getAllWorksheetsByDentist = async (req, res) => {
 ========================= */
 const getWorksheetById = async (req, res) => {
   try {
-    const worksheet = await FicheTravaux.findOne({
-      where: { idWorkSheet: req.params.worksheetId },
-      include: [{ model: Acte, through: { attributes: ["price", "description"] } }]
-    });
+    // Controle d'acces : la fiche doit appartenir au dentiste connecte
+    // (OWASP A05 - IDOR).
+    const worksheet = await findAccessibleWorksheet(
+      req.user,
+      req.params.worksheetId,
+      { include: [{ model: Acte, through: { attributes: ["price", "description"] } }] }
+    );
+
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
+
     return res.status(200).json({ success: true, worksheet });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -137,14 +179,30 @@ const updateStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Statut invalide" });
     }
 
-    const worksheet = await FicheTravaux.findOne({ where: { idWorkSheet: worksheetId } });
+    // Regle de gestion : le dentiste ne fait passer la fiche qu'a "En attente"
+    // (envoi vers l'atelier) et uniquement depuis "A valider".
+    if (!canSetStatus(req.user.role, status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à placer la fiche dans ce statut"
+      });
+    }
+
+    const worksheet = await findAccessibleWorksheet(req.user, worksheetId);
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
 
-    await FicheTravaux.update({ status }, { where: { idWorkSheet: worksheetId } });
+    if (!canActOnStatus(req.user.role, worksheet.status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Cette fiche n'est plus modifiable à ce stade"
+      });
+    }
 
-    await Log.create({ user_id: req.user.id, action: "VALIDATION_FICHE", target_id: worksheetId });
+    await FicheTravaux.update({ status }, { where: { idWorkSheet: worksheet.idWorkSheet } });
+
+    await Log.create({ user_id: req.user.id, action: "VALIDATION_FICHE", target_id: worksheet.idWorkSheet });
 
     return res.status(200).json({ success: true, message: "Statut mis à jour" });
   } catch (error) {
@@ -160,28 +218,55 @@ const updateWorksheet = async (req, res) => {
   try {
     const { worksheetId } = req.params;
 
-    const worksheet = await FicheTravaux.findOne({ where: { idWorkSheet: worksheetId } });
+    // Controle d'acces : la fiche doit appartenir au dentiste connecte.
+    const worksheet = await findAccessibleWorksheet(req.user, worksheetId);
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
+    }
+
+    // Regle de gestion : une fiche deja transmise a l'atelier n'est plus
+    // modifiable par le dentiste.
+    if (!canActOnStatus(req.user.role, worksheet.status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Cette fiche n'est plus modifiable"
+      });
     }
 
     // On extrait les champs scalaires uniquement (pas procedure)
     const { firstNamePatient, lastNamePatient, emailNamePatient, numSecuPatient, comment } = req.body;
 
+    if (emailNamePatient && !isValidEmail(emailNamePatient)) {
+      return res.status(400).json({ success: false, message: "Format email invalide" });
+    }
+
+    if (numSecuPatient && !isValidNumSecu(numSecuPatient)) {
+      return res.status(400).json({
+        success: false,
+        message: "Le numéro de sécurité sociale doit contenir uniquement des chiffres"
+      });
+    }
+
     await FicheTravaux.update(
-      { firstNamePatient, lastNamePatient, emailNamePatient, numSecuPatient, comment },
-      { where: { idWorkSheet: worksheetId } }
+      {
+        firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
+        lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
+        emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
+        numSecuPatient: sanitizeText(numSecuPatient, 15),
+        comment: sanitizeText(comment, MAX_COMMENT_LENGTH)
+      },
+      { where: { idWorkSheet: worksheet.idWorkSheet } }
     );
 
     if (req.body.procedure && Array.isArray(req.body.procedure)) {
-      await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheetId } });
+      await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
 
       const entries = [];
       for (const p of req.body.procedure) {
         const acte = await Acte.findOne({ where: { name: p.name } });
         if (acte) {
           entries.push({
-            idWorkSheet: worksheetId,
+            idWorkSheet: worksheet.idWorkSheet,
             idProcedure: acte.idProcedure,
             price: p.price || 0,
             description: p.description || null
@@ -191,7 +276,7 @@ const updateWorksheet = async (req, res) => {
       if (entries.length > 0) await FicheTravauxActe.bulkCreate(entries);
     }
 
-    await Log.create({ user_id: req.user.id, action: "MISE_A_JOUR_FICHE", target_id: worksheetId });
+    await Log.create({ user_id: req.user.id, action: "MISE_A_JOUR_FICHE", target_id: worksheet.idWorkSheet });
 
     return res.status(200).json({ success: true, message: "Fiche mise à jour" });
   } catch (error) {
@@ -207,15 +292,25 @@ const deleteWorksheet = async (req, res) => {
   try {
     const { worksheetId } = req.params;
 
-    const worksheet = await FicheTravaux.findOne({ where: { idWorkSheet: worksheetId } });
+    // Controle d'acces : la fiche doit appartenir au dentiste connecte.
+    const worksheet = await findAccessibleWorksheet(req.user, worksheetId);
     if (!worksheet) {
       return res.status(404).json({ success: false, message: "Fiche non trouvée" });
     }
 
-    await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheetId } });
-    await FicheTravaux.destroy({ where: { idWorkSheet: worksheetId } });
+    // Regle de gestion : suppression possible tant que la fiche n'est pas
+    // engagee dans le circuit (statut "A valider" ou "Termine").
+    if (!canDeleteWorksheet(req.user.role, worksheet.status)) {
+      return res.status(403).json({
+        success: false,
+        message: "Cette fiche ne peut pas être supprimée à ce stade"
+      });
+    }
 
-    await Log.create({ user_id: req.user.id, action: "SUPPRESSION_FICHE", target_id: worksheetId });
+    await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
+    await FicheTravaux.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
+
+    await Log.create({ user_id: req.user.id, action: "SUPPRESSION_FICHE", target_id: worksheet.idWorkSheet });
     return res.status(200).json({ success: true, message: "Fiche supprimée" });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

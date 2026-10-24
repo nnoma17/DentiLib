@@ -1,4 +1,5 @@
 import { loadUserInfo } from "../userInfo.js";
+import { createCell, createRow, clearElement } from "../domUtils.js";
 
 const btnAccueil = document.getElementById("homePage");
 
@@ -36,15 +37,22 @@ async function loadWorksheet(id) {
         commentInput.value = ws.comment || "";
 
         // Remplir procédures (readonly, cases cochées selon la worksheet)
-        procedureTableBody.innerHTML = "";
+        clearElement(procedureTableBody);
         (ws.procedure || []).forEach(proc => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input type="checkbox" disabled ${proc ? "checked" : ""}></td>
-                <td>${proc.name}</td>
-                <td>${proc.description}</td>
-                <td>${proc.price || 0}</td>
-            `;
+            // Injection en textContent : neutralise les injections de script (XSS).
+            const checkCell = createCell("");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.disabled = true;
+            checkbox.checked = Boolean(proc);
+            checkCell.appendChild(checkbox);
+
+            const tr = createRow([
+                checkCell,
+                createCell(proc.name),
+                createCell(proc.description),
+                createCell(proc.price || 0)
+            ]);
             procedureTableBody.appendChild(tr);
         });
 

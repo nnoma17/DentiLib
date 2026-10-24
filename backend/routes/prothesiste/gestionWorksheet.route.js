@@ -6,14 +6,14 @@ const {
   updateWorksheetStatus
 } = require("../../controllers/prothesiste/gestionWorksheet.controller");
 const authMiddleware = require("../../middleware/authMiddleware");
+const { requireRole } = require("../../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Récupérer toutes les worksheets associées au prothésiste (hors "A valider")
-router.get('/prothesiste/gestionWorksheet/get_all_worksheets', authMiddleware, getAllWorksheets);
-router.get('/prothesiste/get_worksheet_by_id/:worksheetId', authMiddleware, getWorksheetById);
-router.get("/prothesiste/getAssociatedDentist", authMiddleware, getAssociatedDentist);
+router.get('/prothesiste/gestionWorksheet/get_all_worksheets', authMiddleware, requireRole("PROTHESISTE"), getAllWorksheets);
+router.get('/prothesiste/get_worksheet_by_id/:worksheetId', authMiddleware, requireRole("PROTHESISTE"), getWorksheetById);
+router.get("/prothesiste/getAssociatedDentist", authMiddleware, requireRole("PROTHESISTE"), getAssociatedDentist);
 
-router.put('/prothesiste/gestionWorksheet/update_status/:worksheetId', authMiddleware, updateWorksheetStatus);
+router.put('/prothesiste/gestionWorksheet/update_status/:worksheetId', authMiddleware, requireRole("PROTHESISTE"), updateWorksheetStatus);
 
 module.exports = router;

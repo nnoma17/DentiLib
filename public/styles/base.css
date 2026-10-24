@@ -190,3 +190,156 @@ section {
   border-color: #e53935;
 }
 
+/* ==========================================================
+   ACCESSIBILITE (RGAA / WCAG 2.1 niveau AA)
+   ========================================================== */
+
+/* Focus visible au clavier (obligatoire pour la navigation au clavier) */
+:focus-visible {
+  outline: 3px solid var(--couleur-principale-survol, #0056b3);
+  outline-offset: 2px;
+}
+
+/* Respect de la preference systeme "reduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Zone tactile confortable (cible >= 44x44 px sur mobile) */
+button,
+input,
+select {
+  min-height: 44px;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN (mobile / tablette / desktop)
+   ========================================================== */
+
+/* --- Tablette portrait et petits ecrans (<= 900px) --- */
+@media (max-width: 900px) {
+  main {
+    padding: 0.75rem;
+  }
+
+  header {
+    padding: 1rem;
+  }
+
+  h1, h2 {
+    font-size: 1.25rem;
+  }
+
+  /* Les tableaux deviennent des cartes empilees : chaque cellule
+     porte son libelle via l'attribut data-label. */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    border: none;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    flex: 0 0 auto;
+  }
+
+  .inline {
+    flex-wrap: wrap;
+  }
+}
+
+/* --- Smartphone (<= 600px) --- */
+@media (max-width: 600px) {
+  body {
+    font-size: 15px;
+  }
+
+  header {
+    padding: 0.75rem;
+  }
+
+  header .inline {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .disconnect-div {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  #disconnect {
+    width: 100%;
+  }
+
+  section {
+    padding: 0.75rem;
+  }
+
+  input,
+  select,
+  button {
+    width: 100%;
+  }
+
+  .filters,
+  .dropdown-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
+  /* Les modales occupent tout l'ecran */
+  .modal-content {
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
