@@ -27,6 +27,6 @@ router.delete("/admin/delete_User/:userId", authMiddleware, requireRole("ADMIN")
 // Consultation d'un profil : l'ADMIN peut consulter tous les profils,
 // un utilisateur authentifie ne peut consulter que le sien (verifie
 // dans le controleur). Le hash du mot de passe n'est jamais renvoye.
-router.get('/admin/get_User_ById/:userId', authMiddleware, getUserById);
+router.get('/admin/get_User_ById/:userId', authMiddleware, requireRole("ADMIN"), getUserById);
 
 module.exports = router;
