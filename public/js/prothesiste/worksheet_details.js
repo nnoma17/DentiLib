@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("PROTHESISTE");
 
 const btnAccueil = document.getElementById("homePage");
 

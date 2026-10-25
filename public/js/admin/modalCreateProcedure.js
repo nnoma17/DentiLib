@@ -1,4 +1,6 @@
 import { getProcedures } from './procedure.js';
+import { guardPage } from "../guard.js";
+guardPage("ADMIN");
 
 const modalCreation = document.getElementById("modalCreateProcedure");
 const spanCloseModalCreation = document.getElementById("close-modal-createProcedure");

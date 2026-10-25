@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("PROTHESISTE");
 
 const worksheetTableBody = document.getElementById("worksheetTableBody");
 const disconnectBtn = document.getElementById("disconnect");
@@ -20,6 +22,19 @@ async function fetchAndDisplayWorksheets() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
         });
+
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/html/login.html";
+            return;
+        }
+
+        if (response.status === 403) {
+            const err = await response.json().catch(() => ({}));
+            const msg = encodeURIComponent(err.message || "Accès non autorisé");
+            window.location.href = `/html/403.html?message=${msg}`;
+            return;
+        }
 
         if (!response.ok) throw new Error("Erreur récupération worksheets");
 

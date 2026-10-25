@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("DENTISTE");
 
 //--------------------
 //   Elements du dom

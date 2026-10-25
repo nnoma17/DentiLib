@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("DENTISTE");
 
 const worksheetTableBody = document.getElementById("worksheetTableBody");
 const disconnectBtn = document.getElementById("disconnect");

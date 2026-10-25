@@ -1,4 +1,6 @@
 import { createCell, createRow, clearElement } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("ADMIN");
 
 const procedureTableBody = document.getElementById("procedureTableBody");
 const btnAccueil = document.getElementById("homePage");

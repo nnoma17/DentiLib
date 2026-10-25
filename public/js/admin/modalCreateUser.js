@@ -1,4 +1,6 @@
 import { getUsers } from './dashboard.js';
+import { guardPage } from "../guard.js";
+guardPage("ADMIN");
 
 const modal = document.getElementById("modalCreateUser");
 const spanCloseModal = document.getElementById("close-modal-createUser");

@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("PROTHESISTE");
 
 const procedureTableBody = document.getElementById("procedureTableBody");
 const homePageBtn = document.getElementById("homePage");

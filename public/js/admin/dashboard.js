@@ -1,5 +1,7 @@
 import { loadUserInfo, getUserById } from '../userInfo.js';
 import { createCell, createRow, clearElement } from '../domUtils.js';
+import { guardPage } from "../guard.js";
+guardPage("ADMIN");
 
 const userTableBody = document.getElementById("userTableBody");
 const disconnectBtn = document.getElementById("disconnect");

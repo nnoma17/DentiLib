@@ -1,5 +1,7 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
+import { guardPage } from "../guard.js";
+guardPage("DENTISTE");
 
 const formCreateWorksheet = document.getElementById("worksheetCreateForm");
 const btnAccueil = document.getElementById("homePage");
