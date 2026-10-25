@@ -38,6 +38,10 @@ footer {
   text-align: center;
 }
 
+footer a {
+    color: inherit;
+    text-decoration: underline;
+}
 /* ===== Main ===== */
 main {
   flex: 1;

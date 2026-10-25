@@ -1,6 +1,8 @@
 import { loadUserInfo } from "../userInfo.js";
 import { createCell, createRow, clearElement, createErrorRow } from "../domUtils.js";
 import { guardPage } from "../guard.js";
+import { exportMyData, deleteMyAccount } from "../rgpd.js";
+
 guardPage("PROTHESISTE");
 
 const worksheetTableBody = document.getElementById("worksheetTableBody");
@@ -158,3 +160,8 @@ disconnectBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
     window.location.href = "../login.html";
 });
+
+
+//RGPD
+document.getElementById("exportData").addEventListener("click", exportMyData);
+document.getElementById("deleteAccount").addEventListener("click", deleteMyAccount);

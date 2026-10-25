@@ -1,8 +1,10 @@
 const User = require("../models/utilisateur");
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { isValidEmail, isNonEmptyString, sanitizeText } = require("../../utils/validators");
 const { serializeUser } = require("../utils/serializer");
+const { FicheTravaux, Log } = require("../models");
 
 /* =========================
    LOGIN USER
@@ -135,9 +137,16 @@ const getAssociatedUser = async (req, res) => {
       where: { id_user: user.associatedUser }
     });
 
+    if (!associatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Aucun utilisateur associé"
+      });
+    }
+
     return res.json({
       success: true,
-      associatedUser
+      associatedUser: serializeUser(associatedUser)
     });
 
   } catch (error) {
@@ -149,12 +158,83 @@ const getAssociatedUser = async (req, res) => {
   }
 };
 
-
 /* =========================
-   EXPORT
+   RGPD - EXPORT DE MES DONNEES (art. 15 et 20)
 ========================= */
+const exportMyData = async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { id_user: req.user.id } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+    }
+
+    const worksheets = await FicheTravaux.findAll({
+      where: req.user.role === "PROTHESISTE"
+        ? { idProthesiste: req.user.id }
+        : { idDentist: req.user.id }
+    });
+
+    await Log.create({ user_id: req.user.id, action: "EXPORT_DONNEES_RGPD", target_id: req.user.id });
+
+    res.setHeader("Content-Disposition", "attachment; filename=mes-donnees.json");
+    return res.json({
+      success: true,
+      exportedAt: new Date().toISOString(),
+      user: serializeUser(user),
+      worksheets
+    });
+  } catch (error) {
+    console.error("exportMyData:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+
+const deleteMyAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (req.user.role === "ADMIN") {
+      return res.status(403).json({ success: false, message: "Un administrateur ne peut pas supprimer son compte" });
+    }
+    if (!isNonEmptyString(password)) {
+      return res.status(400).json({ success: false, message: "Mot de passe requis pour confirmer" });
+    }
+
+    const user = await User.findOne({ where: { id_user: req.user.id } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ success: false, message: "Mot de passe incorrect" });
+    }
+
+    // Détache l'utilisateur associé
+    if (user.associatedUser) {
+      await User.update({ associatedUser: null }, { where: { id_user: user.associatedUser } });
+    }
+
+    await User.update(
+      {
+        firstName: "Utilisateur",
+        lastName: "Supprimé",
+        email: `supprime_${user.id_user}@anonyme.invalid`,
+        siret: null,
+        associatedUser: null,
+        password: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10)
+      },
+      { where: { id_user: user.id_user } }
+    );
+
+    await Log.create({ user_id: user.id_user, action: "SUPPRESSION_COMPTE_RGPD", target_id: user.id_user });
+
+    return res.json({ success: true, message: "Compte supprimé" });
+  } catch (error) {
+    console.error("deleteMyAccount:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   loginUser,
   getMe,
-  getAssociatedUser
+  getAssociatedUser,
+  exportMyData,
+  deleteMyAccount
 };
