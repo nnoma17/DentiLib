@@ -3,3 +3,4 @@ node_modules/
 
 #Génération des rapports de tests
 tests/api/report.html
+rapportAvancement/
