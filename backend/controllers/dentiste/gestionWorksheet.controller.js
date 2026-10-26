@@ -1,4 +1,4 @@
-const { FicheTravaux, Utilisateur, Log, Acte, FicheTravauxActe, CatalogueProthesiste } = require("../../models");
+const { FicheTravaux, Utilisateur, Log, Acte, FicheTravauxActe, CatalogueProthesiste, sequelize } = require("../../models");
 const { WORKSHEET_STATUS, USER_ROLES } = require("../../../utils/constants");
 const { findAccessibleWorksheet } = require("../../utils/accessControl");
 const { canActOnStatus, canDeleteWorksheet, canSetStatus } = require("../../../utils/workflow");
@@ -12,9 +12,6 @@ const {
   MAX_COMMENT_LENGTH
 } = require("../../../utils/validators");
 
-/* =========================
-   CREATE WORKSHEET + ACTES
-========================= */
 const createWorksheet = async (req, res) => {
   try {
     const {
@@ -64,40 +61,42 @@ const createWorksheet = async (req, res) => {
       return res.status(409).json({ success: false, message: "Numéro de fiche déjà existant" });
     }
 
-    const worksheet = await FicheTravaux.create({
-      numWorkSheet,
-      status: WORKSHEET_STATUS.A_VALIDER,
-      comment: sanitizeText(comment, MAX_COMMENT_LENGTH),
-      lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
-      firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
-      emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
-      numSecuPatient: sanitizeText(numSecuPatient, 15),
-      idDentist,
-      idProthesiste: prothesisteId
-    });
+    const worksheet = await sequelize.transaction(async (t) => { //Tout ou rien evite toucher des données partiellement
+      const created = await FicheTravaux.create({
+        numWorkSheet,
+        status: WORKSHEET_STATUS.A_VALIDER,
+        comment: sanitizeText(comment, MAX_COMMENT_LENGTH),
+        lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
+        firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
+        emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
+        numSecuPatient: sanitizeText(numSecuPatient, 15),
+        idDentist,
+        idProthesiste: prothesisteId
+      }, { transaction: t });
 
-    // Le front envoie des objets {name, description, price} sans idProcedure
-    // On résout l'idProcedure via le nom de l'acte
-    if (procedure && Array.isArray(procedure) && procedure.length > 0) {
-      const entries = [];
-      for (const p of procedure) {
-        const acte = await Acte.findOne({ where: { name: p.name } });
-        if (acte) {
-          entries.push({
-            idWorkSheet: worksheet.idWorkSheet,
-            idProcedure: acte.idProcedure,
-            price: p.price || 0,
-            description: p.description || null
-          });
+      if (procedure && Array.isArray(procedure) && procedure.length > 0) {
+        const entries = [];
+        for (const p of procedure) {
+          const acte = await Acte.findOne({ where: { name: p.name }, transaction: t });
+          if (acte) {
+            entries.push({
+              idWorkSheet: created.idWorkSheet,
+              idProcedure: acte.idProcedure,
+              price: p.price || 0,
+              description: p.description || null
+            });
+          }
         }
+        if (entries.length > 0) await FicheTravauxActe.bulkCreate(entries, { transaction: t });
       }
-      if (entries.length > 0) await FicheTravauxActe.bulkCreate(entries);
-    }
 
-    await Log.create({
-      user_id: req.user.id,
-      action: "CREATION_FICHE",
-      target_id: worksheet.idWorkSheet
+      await Log.create({
+        user_id: req.user.id,
+        action: "CREATION_FICHE",
+        target_id: created.idWorkSheet
+      }, { transaction: t });
+
+      return created;
     });
 
     return res.status(201).json({ success: true, message: "Fiche créée", worksheet });
@@ -126,7 +125,7 @@ const getAllWorksheets = async (req, res) => {
 
 
 /* =========================
-   GET ALL WORKSHEETS BY DENTIST   ← manquait dans le controller mais la route l'appelle
+   GET ALL WORKSHEETS BY DENTIST
 ========================= */
 const getAllWorksheetsByDentist = async (req, res) => {
   try {
@@ -247,36 +246,44 @@ const updateWorksheet = async (req, res) => {
       });
     }
 
-    await FicheTravaux.update(
-      {
-        firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
-        lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
-        emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
-        numSecuPatient: sanitizeText(numSecuPatient, 15),
-        comment: sanitizeText(comment, MAX_COMMENT_LENGTH)
-      },
-      { where: { idWorkSheet: worksheet.idWorkSheet } }
-    );
+    await sequelize.transaction(async (t) => {
+      await FicheTravaux.update(
+        {
+          firstNamePatient: sanitizeText(firstNamePatient, MAX_NAME_LENGTH),
+          lastNamePatient: sanitizeText(lastNamePatient, MAX_NAME_LENGTH),
+          emailNamePatient: sanitizeText(emailNamePatient, MAX_EMAIL_LENGTH),
+          numSecuPatient: sanitizeText(numSecuPatient, 15),
+          comment: sanitizeText(comment, MAX_COMMENT_LENGTH)
+        },
+        { where: { idWorkSheet: worksheet.idWorkSheet }, transaction: t }
+      );
 
-    if (req.body.procedure && Array.isArray(req.body.procedure)) {
-      await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
+      if (req.body.procedure && Array.isArray(req.body.procedure)) {
+        await FicheTravauxActe.destroy({
+          where: { idWorkSheet: worksheet.idWorkSheet },
+          transaction: t
+        });
 
-      const entries = [];
-      for (const p of req.body.procedure) {
-        const acte = await Acte.findOne({ where: { name: p.name } });
-        if (acte) {
-          entries.push({
-            idWorkSheet: worksheet.idWorkSheet,
-            idProcedure: acte.idProcedure,
-            price: p.price || 0,
-            description: p.description || null
-          });
+        const entries = [];
+        for (const p of req.body.procedure) {
+          const acte = await Acte.findOne({ where: { name: p.name }, transaction: t });
+          if (acte) {
+            entries.push({
+              idWorkSheet: worksheet.idWorkSheet,
+              idProcedure: acte.idProcedure,
+              price: p.price || 0,
+              description: p.description || null
+            });
+          }
         }
+        if (entries.length > 0) await FicheTravauxActe.bulkCreate(entries, { transaction: t });
       }
-      if (entries.length > 0) await FicheTravauxActe.bulkCreate(entries);
-    }
 
-    await Log.create({ user_id: req.user.id, action: "MISE_A_JOUR_FICHE", target_id: worksheet.idWorkSheet });
+      await Log.create(
+        { user_id: req.user.id, action: "MISE_A_JOUR_FICHE", target_id: worksheet.idWorkSheet },
+        { transaction: t }
+      );
+    });
 
     return res.status(200).json({ success: true, message: "Fiche mise à jour" });
   } catch (error) {
@@ -307,10 +314,22 @@ const deleteWorksheet = async (req, res) => {
       });
     }
 
-    await FicheTravauxActe.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
-    await FicheTravaux.destroy({ where: { idWorkSheet: worksheet.idWorkSheet } });
+    // Transaction : suppression des actes + de la fiche + log, tout ou rien.
+    await sequelize.transaction(async (t) => {
+      await FicheTravauxActe.destroy({
+        where: { idWorkSheet: worksheet.idWorkSheet },
+        transaction: t
+      });
+      await FicheTravaux.destroy({
+        where: { idWorkSheet: worksheet.idWorkSheet },
+        transaction: t
+      });
+      await Log.create(
+        { user_id: req.user.id, action: "SUPPRESSION_FICHE", target_id: worksheet.idWorkSheet },
+        { transaction: t }
+      );
+    });
 
-    await Log.create({ user_id: req.user.id, action: "SUPPRESSION_FICHE", target_id: worksheet.idWorkSheet });
     return res.status(200).json({ success: true, message: "Fiche supprimée" });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
