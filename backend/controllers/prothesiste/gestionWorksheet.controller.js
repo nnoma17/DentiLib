@@ -60,15 +60,15 @@ exports.getAssociatedDentist = async (req, res) => {
   try {
     const prothesisteId = req.user.id;
 
-    const prothesiste = await Utilisateur.findOne({ where: { idUser: prothesisteId } });
+    const prothesiste = await Utilisateur.findOne({ where: { id_user: prothesisteId } });
 
     if (!prothesiste || !prothesiste.associatedUser) {
       return res.json({ success: true, dentists: [] });
     }
 
     const dentist = await Utilisateur.findOne({
-      where: { idUser: prothesiste.associatedUser },
-      attributes: ["idUser", "firstName", "lastName", "email"]
+      where: { id_user: prothesiste.associatedUser },
+      attributes: ["id_user", "firstName", "lastName", "email"]
     });
 
     return res.json({ success: true, dentists: dentist ? [dentist] : [] });

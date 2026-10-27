@@ -43,6 +43,8 @@ describe("Création fiche", () => {
     // --------------------------
     // 3. Valider et envoyer
     // --------------------------
+    cy.get("#worksheetTableBody input[type='checkbox']:checked").should("exist");
+    cy.get("#firstNamePatient").should("not.have.value", "");
     cy.get("#validationWorksheet").click();
     cy.url({ timeout: 10000 }).should("include", "dashboard_dentiste");
 

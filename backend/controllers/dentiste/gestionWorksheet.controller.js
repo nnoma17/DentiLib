@@ -338,7 +338,7 @@ const deleteWorksheet = async (req, res) => {
 
 const getAssociatedProthesist = async (req, res) => {
   try {
-    const dentist = await Utilisateur.findOne({ where: { idUser: req.user.id } });
+    const dentist = await Utilisateur.findOne({ where: { id_user: req.user.id } });
 
     if (!dentist || !dentist.associatedUser) {
       return res.status(404).json({ success: false, message: "Aucun prothésiste associé" });

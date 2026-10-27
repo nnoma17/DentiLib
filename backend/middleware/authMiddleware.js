@@ -17,16 +17,14 @@ const authMiddleware = (req, res, next) => {
 
   try {
     if (!authHeader || !authHeader.startsWith("Bearer")) {
-      return res.status(403).json({ message: "token no trouvé ou invalide" });
+      return res.status(401).json({ message: "token no trouvé ou invalide" }); //Utilisateur non reconnu
     }
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (!decoded?.id)
-      return res.status(403).json({ message: "token invalide" });
+      return res.status(401).json({ message: "token invalide" }); //Utilisateur non reconnu
 
-    // Le role doit etre present ET connu : un jeton forje avec un role arbitraire
-    // ne doit jamais donner acces a une ressource.
     if (!decoded?.role || !Object.values(USER_ROLES).includes(decoded.role)) {
       return res.status(403).json({ message: "Rôle non spécifié dans token" });
     }
@@ -38,7 +36,7 @@ const authMiddleware = (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(400).json({ message: "token invalide", success: false });
+    res.status(401).json({ message: "token invalide", success: false });
   }
 };
 

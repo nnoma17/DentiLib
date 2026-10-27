@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = require("../../backend/middleware/authMiddleware");
 const { requireRole } = require("../../backend/middleware/authMiddleware");
 
-const JWT_SECRET = "secret-de-test-uniquement-local-0123456789abcdef";
+const JWT_SECRET = "pour-les-tests-uniquement-local-0123456789azerty";
 
 describe("Middleware d'authentification", () => {
   let res;
@@ -35,23 +35,23 @@ describe("Middleware d'authentification", () => {
   test("refuse une requete sans en-tete Authorization", () => {
     authMiddleware({ headers: {} }, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
   test("refuse un en-tete Authorization qui n'est pas un Bearer", () => {
     authMiddleware({ headers: { authorization: "Basic abcdef" } }, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
   test("refuse un jeton invalide ou signe avec une autre cle", () => {
-    const forged = jwt.sign({ id: 1, role: "ADMIN" }, "autre-cle-secrete");
+    const invalid = jwt.sign({ id: 1, role: "ADMIN" }, "autre-cle-secrete");
 
-    authMiddleware({ headers: { authorization: `Bearer ${forged}` } }, res, next);
+    authMiddleware({ headers: { authorization: `Bearer ${invalid}` } }, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -60,7 +60,7 @@ describe("Middleware d'authentification", () => {
 
     authMiddleware({ headers: { authorization: `Bearer ${expired}` } }, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -69,7 +69,7 @@ describe("Middleware d'authentification", () => {
 
     authMiddleware({ headers: { authorization: `Bearer ${token}` } }, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
