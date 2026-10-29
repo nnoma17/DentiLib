@@ -27,7 +27,7 @@ const createAdmin = async (req, res) => {
       });
     }
 
-    if (!isValidEmail(email)) {
+    if (email && !isValidEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Format email invalide"
@@ -79,8 +79,7 @@ const createAdmin = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -136,7 +135,6 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // La
     let dentiste = null;
     if (role === "PROTHESISTE") {
       if (!dentisteId) {
@@ -206,8 +204,7 @@ const createUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -231,6 +228,13 @@ const deleteUser = async (req, res) => {
       });
     }
 
+    if (Number(userId) === req.user.id){
+      return res.status(400).json({
+        success: false,
+        message: "Un administrateur ne peut pas se supprimer lui même"
+      });
+    }
+
     await Utilisateur.destroy({
       where: { id_user: userId }
     });
@@ -249,8 +253,7 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -260,13 +263,19 @@ const deleteUser = async (req, res) => {
    UPDATE USER
 ========================= */
 const updateUser = async (req, res) => {
-  const { firstName, lastName, email, siret, role, password } = req.body;
+  const { firstName, lastName, email, siret, password } = req.body;
   const userId = req.params.userId;
 
   try {
     const user = await Utilisateur.findOne({
       where: { id_user: userId }
     });
+
+    if (email && !isValidEmail(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Format email invalide" });
+    }
 
     if (!user) {
       return res.status(404).json({
@@ -292,11 +301,10 @@ const updateUser = async (req, res) => {
       lastName: lastName || user.lastName,
       firstName: firstName || user.firstName,
       email: email || user.email,
-      siret: siret || user.siret,
-      role: role || user.role
+      siret: siret || user.siret
     };
 
-    if (password && password.length >= 6) {
+    if (password && isValidPassword(password)) {
       updateData.password = await bcrypt.hash(password, 10);
     }
 
@@ -316,8 +324,7 @@ const updateUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -353,7 +360,7 @@ const getUserById = async (req, res) => {
     return res.status(200).json({ success: true, user: serializeUser(user) });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -363,7 +370,7 @@ const getAllUsers = async (req, res) => {
     return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -376,7 +383,7 @@ const getAllDentists = async (req, res) => {
     return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -391,7 +398,7 @@ const getAllUsersNotAdmin = async (req, res) => {
     return res.status(200).json({ success: true, users: serializeUsers(users) });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 

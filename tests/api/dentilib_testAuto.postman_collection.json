@@ -14,48 +14,36 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"const statusCode = pm.response.code;\r",
-							" \r",
-							"if (statusCode !== 500) {\r",
-							" \r",
-							"    const reponse = pm.response.json();\r",
-							"    pm.test(\"the response must be JSON\", function () {\r",
-							"        pm.response.to.be.json\r",
-							"    })\r",
-							" \r",
-							" \r",
-							"    if (statusCode === 409) {\r",
-							"        pm.test(\"Check if error  Message is correct\", function () {\r",
-							"            pm.expect(reponse.message).to.eql(\"Email déjà utilisé\");\r",
-							"        })\r",
-							"    }\r",
-							"    if (statusCode === 201) {\r",
-							"        pm.test(\"Check if body have properties message and user\", function () {\r",
-							"            pm.expect(reponse).to.have.property(\"message\");\r",
-							"            pm.expect(reponse).to.have.property(\"user\");\r",
-							"        })\r",
-							"    }\r",
-							"    \r",
-							"    if (statusCode === 400) {\r",
-							"        //pm.test(\"Message d'erreur si mot de passe trop court\", function () {\r",
-							"        //    if (message.includes(\"champ manquant\")) {\r",
-							"        //    pm.expect(message).to.include(\"Champs manquants\");\r",
-							"        //} \r",
-							"        //});\r",
-							"\r",
-							"        if(pm.iterationData.get(\"passwordCreation\").length == 0){\r",
-							"            pm.test(\"Message d'erreur si mot de passe est vide\", function () {\r",
-							"                pm.expect(reponse.message).to.eql(\"Champs manquants\");\r",
-							"            });\r",
-							"        }else if(pm.iterationData.get(\"passwordCreation\").length < 6)\r",
-							"            pm.test(\"Message d'erreur si mot de passe trop court\", function () {\r",
-							"            pm.expect(reponse.message).to.eql(\"Mot de passe trop court\");\r",
-							"        });\r",
-							"    }\r",
-							"} else {\r",
-							"    pm.test(\"respose not json\", function(){\r",
-							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
-							"    })\r",
+							"const statusCode = pm.response.code;",
+							"const reponse = pm.response.json();",
+							"const data = pm.iterationData;",
+							"",
+							"pm.test(\"La réponse est du JSON\", () => pm.response.to.be.json);",
+							"",
+							"if (statusCode === 201) {",
+							"    pm.test(\"message et user présents, sans mot de passe\", () => {",
+							"        pm.expect(reponse).to.have.property(\"message\");",
+							"        pm.expect(reponse).to.have.property(\"user\");",
+							"        pm.expect(reponse.user).to.not.have.property(\"password\");",
+							"    });",
+							"}",
+							"",
+							"if (statusCode === 409) {",
+							"    pm.test(\"Email déjà utilisé\", () => {",
+							"        pm.expect(reponse.message).to.eql(\"Email déjà utilisé\");",
+							"    });",
+							"}",
+							"",
+							"if (statusCode === 400) {",
+							"    if (!data.get(\"emailCreation\") || !data.get(\"passwordCreation\")) {",
+							"        pm.test(\"Champs manquants\", () => {",
+							"            pm.expect(reponse.message).to.eql(\"Champs manquants\");",
+							"        });",
+							"    } else if (data.get(\"passwordCreation\").length < 6) {",
+							"        pm.test(\"Mot de passe trop court\", () => {",
+							"            pm.expect(reponse.message).to.eql(\"Mot de passe trop court\");",
+							"        });",
+							"    }",
 							"}"
 						],
 						"type": "text/javascript",
@@ -86,7 +74,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"firstName\": \"{{lastName}}\",\r\n  \"lastName\": \"{{firstName}}\",\r\n  \"email\": \"{{emailCreation}}\",\r\n  \"password\": \"{{passwordCreation}}\"\r\n}",
+					"raw": "{\r\n  \"firstName\": \"{{firstName}}\",\r\n  \"lastName\": \"{{lastName}}\",\r\n  \"email\": \"{{emailCreation}}\",\r\n  \"password\": \"{{passwordCreation}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -114,26 +102,29 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.environment.set(\"tokenAdmin\", pm.response.json().token);\r",
-							"const statusCode = pm.response.code;\r",
-							" \r",
-							"if (statusCode !== 500) { \r",
-							"    \r",
-							"    const reponse = pm.response.json();\r",
-							"    if (statusCode === 405) {\r",
-							"        pm.test(\"Si utilateur innexistant\", function () {\r",
-							"            pm.expect(reponse.message).to.eql(\"L'utilisateur n'existe pas\");\r",
-							"        })\r",
-							"    }\r",
-							"    if (statusCode === 401) {\r",
-							"        pm.test(\"Check if error  Message is correct\", function () {\r",
-							"            pm.expect(reponse.message).to.eql(\"Mot de passe incorrect\");\r",
-							"        })\r",
-							"    }\r",
-							"} else {\r",
-							"    pm.test(\"respose not json\", function(){\r",
-							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
-							"    })\r",
+							"const statusCode = pm.response.code;",
+							"const reponse = pm.response.json();",
+							"",
+							"pm.test(\"La réponse est du JSON\", () => pm.response.to.be.json);",
+							"",
+							"if (statusCode === 200) {",
+							"    pm.environment.set(\"tokenAdmin\", reponse.token);",
+							"    pm.test(\"Token présent, sans mot de passe dans la réponse\", () => {",
+							"        pm.expect(reponse).to.have.property(\"token\");",
+							"        pm.expect(reponse.user).to.not.have.property(\"password\");",
+							"    });",
+							"}",
+							"",
+							"if (statusCode === 401) {",
+							"    pm.test(\"Message unique pour email ou mot de passe incorrect\", () => {",
+							"        pm.expect(reponse.message).to.eql(\"Identifiant incorrect\");",
+							"    });",
+							"}",
+							"",
+							"if (statusCode === 400) {",
+							"    pm.test(\"Champs manquants\", () => {",
+							"        pm.expect(reponse.message).to.eql(\"Champs manquants\");",
+							"    });",
 							"}"
 						],
 						"type": "text/javascript",
@@ -169,20 +160,16 @@
 			"response": []
 		},
 		{
-			"name": "DELETE",
+			"name": "DELETE MY ACCOUNT (admin refusé)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"const statusCode = pm.response.code;\r",
-							" \r",
-							"if (statusCode !== 500) {\r",
-							"} else {\r",
-							"    pm.test(\"respose not json\", function(){\r",
-							"        pm.expect(pm.response.to.be.json).to.be.true;\r",
-							"    })\r",
-							"}"
+							"pm.test(\"Un administrateur ne peut pas supprimer son compte (403)\", () => {",
+							"    pm.response.to.have.status(403);",
+							"    pm.expect(pm.response.json().message).to.eql(\"Un administrateur ne peut pas supprimer son compte\");",
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {},
@@ -195,18 +182,33 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{tokenAdmin}}"
+						"value": "Bearer {{tokenAdmin}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"password\": \"{{passwordLogin}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{BASE_URL}}/api/user/delete_actual_user",
+					"raw": "{{BASE_URL}}/api/user/delete_my_account",
 					"host": [
 						"{{BASE_URL}}"
 					],
 					"path": [
 						"api",
 						"user",
-						"delete_actual_user"
+						"delete_my_account"
 					]
 				}
 			},

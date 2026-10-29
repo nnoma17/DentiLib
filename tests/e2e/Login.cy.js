@@ -19,7 +19,7 @@ describe('page acceuil', () => {
     cy.get('#email').type(this.users.admin.email);
     cy.get('#password').type('mauvaisMDP');
     cy.xpath('//button[text()="Se connecter"]').click();
-    cy.get('#errorLogin').should('be.visible').and('contain', 'Mot de passe incorrect');
+    cy.get('#errorLogin').should('be.visible').and('contain', 'Identifiant incorrect');
   });
 
   it('Connexion avec mauvais email', () => {
@@ -27,7 +27,7 @@ describe('page acceuil', () => {
     cy.get('#password').type('mauvaisMDP');
     cy.xpath('//button[text()="Se connecter"]').click();
     //une erreur s'affiche
-    cy.get('#errorLogin').should('be.visible').and('contain', "L'utilisateur n'existe pas");
+    cy.get('#errorLogin').should('be.visible').and('contain', "Identifiant incorrect");
   });
   
   it('Connexion sans email', () => {

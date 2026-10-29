@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { isValidEmail, isNonEmptyString, sanitizeText } = require("../../utils/validators");
 const { serializeUser } = require("../utils/serializer");
-const { FicheTravaux, Log } = require("../models");
+const { FicheTravaux, Log, sequelize } = require("../models");
 
 /* =========================
    LOGIN USER
@@ -22,9 +22,9 @@ const loginUser = async (req, res) => {
     }
 
     if (!isValidEmail(email)) {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
-        message: "L'utilisateur n'existe pas"
+        message: "Identifiant incorrect"
       });
     }
 
@@ -33,9 +33,9 @@ const loginUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
-        message: "L'utilisateur n'existe pas"
+        message: "Identifiant incorrect"
       });
     }
 
@@ -44,7 +44,7 @@ const loginUser = async (req, res) => {
     if (!isValid) {
       return res.status(401).json({
         success: false,
-        message: "Mot de passe incorrect"
+        message: "Identifiant incorrect"
       });
     }
 
@@ -68,8 +68,7 @@ const loginUser = async (req, res) => {
 
   } catch (error) {
     return res.status(500).json({
-      message: "Une erreur est survenue",
-      error: error.message
+      message: "Une erreur est survenue"
     });
   }
 };
@@ -101,8 +100,7 @@ const getMe = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -152,8 +150,7 @@ const getAssociatedUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: error.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -165,7 +162,7 @@ const exportMyData = async (req, res) => {
   try {
     const user = await User.findOne({ where: { id_user: req.user.id } });
     if (!user) {
-      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+      return res.status(401).json({ success: false, message: "Utilisateur non trouvé" });
     }
 
     const worksheets = await FicheTravaux.findAll({
@@ -202,27 +199,36 @@ const deleteMyAccount = async (req, res) => {
 
     const user = await User.findOne({ where: { id_user: req.user.id } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ success: false, message: "Mot de passe incorrect" });
+      return res.status(400).json({ success: false, message: "Mot de passe incorrect" });
     }
 
-    // Détache l'utilisateur associé
-    if (user.associatedUser) {
-      await User.update({ associatedUser: null }, { where: { id_user: user.associatedUser } });
-    }
+        const anonymizedPassword = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10);
 
-    await User.update(
-      {
-        firstName: "Utilisateur",
-        lastName: "Supprimé",
-        email: `supprime_${user.id_user}@anonyme.invalid`,
-        siret: null,
-        associatedUser: null,
-        password: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10)
-      },
-      { where: { id_user: user.id_user } }
-    );
+    await sequelize.transaction(async (t) => {
+      if (user.associatedUser) {
+        await User.update(
+          { associatedUser: null },
+          { where: { id_user: user.associatedUser }, transaction: t }
+        );
+      }
 
-    await Log.create({ user_id: user.id_user, action: "SUPPRESSION_COMPTE_RGPD", target_id: user.id_user });
+      await User.update(
+        {
+          firstName: "Utilisateur",
+          lastName: "Supprimé",
+          email: `supprime_${user.id_user}@anonyme.invalid`,
+          siret: null,
+          associatedUser: null,
+          password: anonymizedPassword
+        },
+        { where: { id_user: user.id_user }, transaction: t }
+      );
+
+      await Log.create(
+        { user_id: user.id_user, action: "SUPPRESSION_COMPTE_RGPD", target_id: user.id_user },
+        { transaction: t }
+      );
+    });
 
     return res.json({ success: true, message: "Compte supprimé" });
   } catch (error) {

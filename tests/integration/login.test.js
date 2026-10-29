@@ -39,7 +39,7 @@ describe("POST /api/user/login_User", () => {
         password: "12345678"
       });
 
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(401);
   });
 
   test("mot de passe incorrect", async () => {
