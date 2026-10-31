@@ -8,14 +8,14 @@
  * toutes les regles metier sont revalidees ici.
  */
 
-// Format d'e-mail volontairement simple mais suffisant pour un controle serveur.
+// Format d'e-mail
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Numero de securite sociale : uniquement des chiffres (colonne VARCHAR(15)).
+// Numero de securite sociale
 const NUM_SECU_REGEX = /^\d{1,15}$/;
 
+//Mot de passe
 const PASSWORD_MIN_LENGTH = 6;
-// bcrypt ne hache que les 72 premiers octets : on refuse les mots de passe plus longs.
 const PASSWORD_MAX_LENGTH = 72;
 
 const MAX_NAME_LENGTH = 100;
