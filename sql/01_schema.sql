@@ -6,7 +6,9 @@ CREATE TABLE Utilisateur (
     password VARCHAR(255) NOT NULL, 
     role ENUM('DENTISTE', 'PROTHESISTE', 'ADMIN') NOT NULL, 
     siret VARCHAR(20),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    associatedUser INT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (associatedUser) REFERENCES Utilisateur(idUser) ON DELETE SET NULL
 ); 
 
 CREATE TABLE Acte ( 
@@ -17,7 +19,7 @@ CREATE TABLE Acte (
 
 CREATE TABLE FicheTravaux ( 
     idWorkSheet INT PRIMARY KEY AUTO_INCREMENT, 
-    numWorkSheet INT NOT NULL, 
+    numWorkSheet BIGINT NOT NULL UNIQUE, 
     status ENUM('A valider','En attente','En cours','Termine') NOT NULL, 
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     comment TEXT, 
@@ -58,5 +60,5 @@ CREATE TABLE Log (
   action VARCHAR(100) NOT NULL,
   target_id INT,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES Utilisateur(idUser)
+  FOREIGN KEY (user_id) REFERENCES Utilisateur(idUser) ON DELETE SET NULL
 );

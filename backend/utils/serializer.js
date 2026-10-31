@@ -6,8 +6,8 @@
  */
 
 /**
- * Retoure la representation publique d'un utilisateur (sans hash de mot de passe).
- * @param {object|null} user instance Sequelize ou objet simple
+ * Retourne un utilisateur (sans hash de mot de passe).
+ * @param {object|null} user utilisateur a retourner
  * @returns {object|null}
  */
 function serializeUser(user) {
@@ -21,7 +21,7 @@ function serializeUser(user) {
 }
 
 /**
- * Retoure la representation publique d'une liste d'utilisateurs.
+ * Retourne une liste d'utilisateur (sans hash de mot de passe).
  * @param {Array<object>} users
  * @returns {Array<object>}
  */
