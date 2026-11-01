@@ -43,8 +43,7 @@ exports.getCatalogue = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: err.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -175,8 +174,8 @@ exports.updateProcedurePrice = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: err.message
+      message: "Erreur serveur"
+      
     });
   }
 };
