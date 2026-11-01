@@ -22,6 +22,7 @@ jobs:
 
       - name: Run test Cypress
         env:
+          CYPRESS: true
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
