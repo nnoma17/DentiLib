@@ -2,9 +2,9 @@ name: Tests Integration jest
 
 on:
   push:
-    branches: [main, test, test-integration]
+    branches: [main, test-integration, dev-c]
   pull_request:
-    branches: [main]
+    branches: [main, dev-c]
 
 jobs:
   build_test:

@@ -2,9 +2,9 @@ name: Tests API Postman
 
 on:
   push:
-    branches: [main, test]
+    branches: [main, dev-c]
   pull_request:
-    branches: [main]
+    branches: [main, dev-c]
 
 jobs:
   build_test:
