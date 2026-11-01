@@ -64,7 +64,7 @@ async function fetchAndDisplayWorksheets() {
 //    Affiche les actes
 //--------------------------
 function displayWorksheets(worksheets) {
-    // Injection en textContent : neutralise les injections de script (XSS).
+    // Empeche les injections de script (XSS).
     clearElement(worksheetTableBody);
 
     if (!worksheets.length) {

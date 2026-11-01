@@ -45,7 +45,6 @@ const createAdmin = async (req, res) => {
       where: { email }
     });
 
-
     if (alreadyExists) {
       return res.status(409).json({
         success: false,

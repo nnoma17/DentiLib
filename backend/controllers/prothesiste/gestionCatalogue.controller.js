@@ -17,8 +17,7 @@ exports.getAllProcedures = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Erreur serveur",
-      error: err.message
+      message: "Erreur serveur"
     });
   }
 };
@@ -50,11 +49,6 @@ exports.getCatalogue = async (req, res) => {
   }
 };
 
-
-/* =========================
-   UPDATE / UPSERT PRICE
-   CatalogueProthesiste
-========================= */
 exports.updateProcedurePrice = async (req, res) => {
   try {
     const prothesistId = Number(req.user.id);
@@ -72,9 +66,7 @@ exports.updateProcedurePrice = async (req, res) => {
 
     if (finalPrice < 0) finalPrice = 0;
 
-    /* =========================
-       Vérification prothésiste
-    ========================= */
+    //Vérification prothésiste
     const prothesist = await Utilisateur.findOne({
       where: {
         id_user: prothesistId,
@@ -89,9 +81,7 @@ exports.updateProcedurePrice = async (req, res) => {
       });
     }
 
-    /* =========================
-       Vérification acte
-    ========================= */
+    //Vérification acte
     const acte = await Acte.findOne({
       where: { idProcedure: procedureId }
     });
@@ -103,9 +93,7 @@ exports.updateProcedurePrice = async (req, res) => {
       });
     }
 
-    /* =========================
-       CHECK EXISTENCE
-    ========================= */
+    // Existe
     const existing = await CatalogueProthesiste.findOne({
       where: {
         idProthesiste: prothesistId,
@@ -113,9 +101,7 @@ exports.updateProcedurePrice = async (req, res) => {
       }
     });
 
-    /* =========================
-       CAS 1 : SUPPRESSION
-    ========================= */
+    //Supprime si prix à 0
     if (finalPrice === 0 && existing) {
       await CatalogueProthesiste.destroy({
         where: {
@@ -136,9 +122,7 @@ exports.updateProcedurePrice = async (req, res) => {
       });
     }
 
-    /* =========================
-       CAS 2 : UPDATE
-    ========================= */
+    //Met à jour si déjà dans le catalogue
     if (existing) {
       await CatalogueProthesiste.update(
         { price: finalPrice },
@@ -162,9 +146,7 @@ exports.updateProcedurePrice = async (req, res) => {
       });
     }
 
-    /* =========================
-       CAS 3 : CREATE
-    ========================= */
+    //Créer si le prix devient > 0
     if (finalPrice > 0) {
       await CatalogueProthesiste.create({
         idProthesiste: prothesistId,
