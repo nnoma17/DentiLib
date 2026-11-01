@@ -24,9 +24,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.5",
-    "newman": "^6.2.1",
-    "newman-reporter-htmlextra": "^1.23.1",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^10.3.1",
     "nodemon": "^3.1.11",
     "path": "^0.12.7",
     "sequelize": "^6.37.8"
@@ -35,6 +33,8 @@
     "cypress": "^15.8.0",
     "cypress-xpath": "^2.0.1",
     "jest": "^30.2.0",
+    "newman": "^6.2.3",
+    "newman-reporter-htmlextra": "^1.23.1",
     "supertest": "^7.1.4"
   }
 }
