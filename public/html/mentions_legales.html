@@ -15,78 +15,113 @@
 
     <main>
         <h2>Mentions légales et politique de confidentialité</h2>
+        <p>Dernière mise à jour : 1er novembre 2026</p>
 
         <section>
             <h3>1. Éditeur et responsable de traitement</h3>
             <p>
-                Dentilib est un projet pédagogique réalisé dans le cadre de la formation
-                Consulting School.<br />
-                Responsable de traitement : [NOM / ORGANISME]<br />
-                Adresse : [ADRESSE]<br />
-                Contact : [EMAIL DE CONTACT]
+                Dentilib est une application de gestion des fiches de travaux dentaires,
+                développée dans le cadre d'un projet de formation (Consulting School).<br />
+                Responsable de traitement : SantExpFrance (société fictive, projet pédagogique)<br />
+                Adresse : 12 rue des Aubépines, 14000 Caen, France<br />
+                Directrice de la publication : Manon Vatres<br />
+                Contact : <a href="mailto:rgpd@santexpfrance.fr">rgpd@santexpfrance.fr</a>
             </p>
         </section>
 
         <section>
             <h3>2. Hébergement</h3>
-            <p>[NOM DE L'HÉBERGEUR, ADRESSE]</p>
+            <p>
+                Application web : Render (Render Services, Inc.).<br />
+                Base de données : Clever Cloud (société française).
+            </p>
         </section>
 
         <section>
             <h3>3. Finalités du traitement</h3>
             <p>
-                Les données sont traitées pour gérer les comptes des professionnels
-                (dentistes, prothésistes) et les fiches de travaux dentaires échangées
-                entre eux.
+                Les données sont traitées uniquement pour permettre aux chirurgiens-dentistes
+                et aux prothésistes d'échanger des fiches de travaux, de suivre leur
+                avancement et de gérer les comptes des professionnels. Elles ne sont jamais
+                utilisées à des fins commerciales.
             </p>
         </section>
 
         <section>
             <h3>4. Base légale</h3>
             <ul>
-                <li>Comptes professionnels : exécution du contrat / intérêt légitime.</li>
-                <li>Données de santé des patients : traitées pour la prise en charge
-                    (article 9.2.h du RGPD).</li>
+                <li>Comptes des professionnels : intérêt légitime à échanger les informations
+                    nécessaires à la réalisation des soins (article 6.1.f du RGPD).</li>
+                <li>Données de santé des patients : traitement nécessaire à la prise en charge
+                    et à la fourniture de soins (article 9.2.h du RGPD).</li>
             </ul>
         </section>
 
         <section>
             <h3>5. Données traitées</h3>
             <ul>
-                <li>Utilisateurs : nom, prénom, email, SIRET, rôle.</li>
-                <li>Patients : nom, prénom, email, numéro de sécurité sociale, actes et
-                    remarques de la fiche.</li>
-                <li>Journaux d'actions (traçabilité et sécurité).</li>
+                <li>Utilisateurs : nom, prénom, adresse e-mail, SIRET, rôle, mot de passe
+                    (conservé uniquement sous forme chiffrée irréversible).</li>
+                <li>Patients : nom, prénom, adresse e-mail, numéro de sécurité sociale,
+                    actes prescrits et remarques de la fiche de travaux.</li>
+                <li>Journal des actions : type d'action, identifiant de l'utilisateur, date
+                    et heure (traçabilité et sécurité).</li>
             </ul>
         </section>
 
         <section>
-            <h3>6. Durée de conservation</h3>
+            <h3>6. Durées de conservation</h3>
             <ul>
-                <li>Comptes : durée d'activité du compte, puis [1 AN] maximum.</li>
-                <li>Fiches de travaux : [DURÉE LÉGALE APPLICABLE AUX DOSSIERS DE SANTÉ].</li>
-                <li>Journaux : [6 MOIS À 1 AN].</li>
+                <li>Comptes utilisateurs : conservés pendant l'utilisation de l'application,
+                    puis supprimés ou anonymisés au plus tard un an après la fin de la
+                    collaboration.</li>
+                <li>Fiches de travaux : conservées pendant 10 ans à compter de leur clôture,
+                    dans la limite de la durée légale applicable aux dossiers de santé.</li>
+                <li>Journal des actions : conservé un an.</li>
             </ul>
+            <p>
+                La suppression est réalisée à la demande de la personne concernée ou lors de
+                la revue annuelle effectuée par l'administrateur.
+            </p>
         </section>
 
         <section>
             <h3>7. Destinataires et sécurité</h3>
             <p>
-                Les données ne sont accessibles qu'aux utilisateurs habilités selon leur
-                rôle. Elles ne sont ni vendues ni transmises à des tiers. Les accès sont
-                protégés par authentification, contrôle des rôles et en-têtes de sécurité.
+                Les données ne sont accessibles qu'aux utilisateurs habilités selon leur rôle :
+                un dentiste ne voit que ses fiches, un prothésiste que les fiches qui lui sont
+                confiées. Elles ne sont ni vendues ni transmises à des tiers.
+            </p>
+            <p>
+                Mesures de protection : authentification par jeton, contrôle des droits par
+                rôle, mots de passe hachés, en-têtes de sécurité HTTP, limitation du nombre de
+                tentatives de connexion et journalisation des actions.
             </p>
         </section>
 
         <section>
             <h3>8. Vos droits</h3>
             <p>
-                Vous disposez d'un droit d'accès, de rectification, d'effacement,
-                de portabilité, d'opposition et de limitation. Depuis votre espace, vous pouvez
-                exporter vos données et supprimer votre compte. Pour toute autre demande :
-                [EMAIL DE CONTACT].
+                Vous disposez d'un droit d'accès, de rectification, d'effacement, de
+                portabilité, d'opposition et de limitation du traitement.
             </p>
+            <ul>
+                <li><strong>Accès et portabilité</strong> : les dentistes et prothésistes
+                    peuvent exporter leurs données au format JSON depuis leur tableau de bord.</li>
+                <li><strong>Rectification</strong> : l'administrateur peut corriger les
+                    informations d'un compte ; le dentiste peut modifier ses fiches tant
+                    qu'elles n'ont pas été envoyées.</li>
+                <li><strong>Effacement</strong> : les dentistes et prothésistes peuvent
+                    supprimer leur compte depuis leur tableau de bord, après confirmation par
+                    mot de passe. Le compte est alors anonymisé (nom, e-mail et SIRET effacés).
+                    Les fiches de travaux restent conservées pour la durée légale, sans être
+                    rattachées à une identité.</li>
+                <li><strong>Patients</strong> : les patients n'ont pas accès à l'application ;
+                    ils exercent leurs droits auprès de leur chirurgien-dentiste.</li>
+            </ul>
             <p>
+                Pour toute autre demande :
+                <a href="mailto:rgpd@santexpfrance.fr">rgpd@santexpfrance.fr</a>.
                 En cas de difficulté, vous pouvez introduire une réclamation auprès de la
                 CNIL : <a href="https://www.cnil.fr" rel="noopener noreferrer">www.cnil.fr</a>.
             </p>
@@ -97,7 +132,7 @@
             <p>
                 Aucun cookie de suivi n'est utilisé. Un jeton de connexion est stocké dans le
                 navigateur (stockage local) uniquement pour maintenir votre session ; il est
-                supprimé à la déconnexion.
+                supprimé à la déconnexion et expire au bout d'une heure.
             </p>
         </section>
 
