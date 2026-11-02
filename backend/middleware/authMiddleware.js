@@ -17,7 +17,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     if (!authHeader || !authHeader.startsWith("Bearer")) {
-      return res.status(401).json({ message: "token no trouvé ou invalide" }); //Utilisateur non reconnu
+      return res.status(401).json({ message: "token non trouvé ou invalide" }); //Utilisateur non reconnu
     }
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -26,7 +26,7 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ message: "token invalide" }); //Utilisateur non reconnu
 
     if (!decoded?.role || !Object.values(USER_ROLES).includes(decoded.role)) {
-      return res.status(403).json({ message: "Rôle non spécifié dans token" });
+      return res.status(403).json({ message: "Rôle non spécifié dans token" }); //Utilisateur connu mais pas le rôle
     }
 
     req.user = {
