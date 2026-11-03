@@ -39,7 +39,7 @@
 							"        pm.test(\"Champs manquants\", () => {",
 							"            pm.expect(reponse.message).to.eql(\"Champs manquants\");",
 							"        });",
-							"    } else if (donnees.get(\"passwordCreation\").length < 6) {",
+							"    } else if (donnees.get(\"passwordCreation\").length < 12) {",
 							"        pm.test(\"Mot de passe trop court\", () => {",
 							"            pm.expect(reponse.message).to.eql(\"Mot de passe trop court\");",
 							"        });",

@@ -22,16 +22,16 @@ const tokenFor = (role) => jwt.sign({ id: 1, role }, process.env.JWT_SECRET, { e
 describe("Contrôle d'accès par rôle (OWASP A01)", () => {
   const url = "/api/admin/gestionProcedure/get_All_Procedures";
 
-  test("sans token → 401", async () => {
+  test("sans token : 401", async () => {
     expect((await request(app).get(url)).statusCode).toBe(401);
   });
 
-  test("dentiste sur route admin → 403", async () => {
+  test("dentiste sur route admin : 403", async () => {
     const res = await request(app).get(url).set("Authorization", `Bearer ${tokenFor("DENTISTE")}`);
     expect(res.statusCode).toBe(403);
   });
 
-  test("prothésiste sur route dentiste → 403", async () => {
+  test("prothésiste sur route dentiste : 403", async () => {
     const res = await request(app)
       .get("/api/admin/gestionWorksheet/get_all_worksheet_by_dentiste")
       .set("Authorization", `Bearer ${tokenFor("PROTHESISTE")}`);

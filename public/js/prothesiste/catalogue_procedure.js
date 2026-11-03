@@ -32,7 +32,6 @@ async function loadUserInfoAndData() {
 
         allProcedures = proceduresData.procedures || [];
 
-        // Map idProcedure → price pour lookup O(1)
         const priceMap = {};
         (catalogueData.catalogue || []).forEach(c => {
             priceMap[c.idProcedure] = c.price;

@@ -54,7 +54,7 @@ describe("Validations serveur", () => {
 
   describe("isValidPassword", () => {
     test("accepte un mot de passe suffisamment long", () => {
-      expect(isValidPassword("123456")).toBe(true);
+      expect(isValidPassword("123456789000")).toBe(true);
       expect(isValidPassword("MotDePasse123")).toBe(true);
     });
 

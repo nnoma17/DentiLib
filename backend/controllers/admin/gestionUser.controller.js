@@ -19,11 +19,9 @@ const createAdmin = async (req, res) => {
   const { firstName, lastName, email, siret, password } = req.body;
 
   try {
-    // Validation serveur : le client n'est jamais considere comme fiable.
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({
-        success: false,
-        message: "Champs manquants"
+        success: false, message: "Champs manquants"
       });
     }
 
@@ -36,8 +34,7 @@ const createAdmin = async (req, res) => {
 
     if (!isValidPassword(password)) {
       return res.status(400).json({
-        success: false,
-        message: "Mot de passe trop court"
+        success: false, message: "Mot de passe trop court"
       });
     }
 
@@ -47,8 +44,7 @@ const createAdmin = async (req, res) => {
 
     if (alreadyExists) {
       return res.status(409).json({
-        success: false,
-        message: "Email déjà utilisé"
+        success: false, message: "Email déjà utilisé"
       });
     }
 
@@ -91,33 +87,27 @@ const createUser = async (req, res) => {
   const { firstName, lastName, email, password, role, siret, dentisteId } = req.body;
 
   try {
-    // Validation serveur : le client ne doit jamais être considéré comme fiable. Peut être touché par l'utilisateur.
-    // Les controles cotés utilisateur sont surtout ergonomique. Il pourrait essayé de faire une requete vers l'api et eviter les contrôles
     if (!firstName || !lastName || !email || !password || !role) {
       return res.status(400).json({
-        success: false,
-        message: "Champs manquants"
+        success: false, message: "Champs manquants"
       });
     }
 
-    if (![USER_ROLES.DENTISTE, USER_ROLES.PROTHESISTE].includes(role)) {
+    if (![USER_ROLES.DENTISTE, USER_ROLES.PROTHESISTE].includes(role)) { //Pas d'admin
       return res.status(400).json({
-        success: false,
-        message: "Rôle invalide"
+        success: false, message: "Rôle invalide"
       });
     }
 
     if (!isValidEmail(email)) {
       return res.status(400).json({
-        success: false,
-        message: "Format email invalide"
+        success: false, message: "Format email invalide"
       });
     }
 
     if (!isValidPassword(password)) {
       return res.status(400).json({
-        success: false,
-        message: "Mot de passe trop court"
+        success: false, message: "Mot de passe trop court"
       });
     }
 
@@ -127,8 +117,7 @@ const createUser = async (req, res) => {
 
     if (existingUser) {
       return res.status(409).json({
-        success: false,
-        message: "Email déjà utilisé"
+        success: false, message: "Email déjà utilisé"
       });
     }
 
@@ -158,12 +147,9 @@ const createUser = async (req, res) => {
     //Transaction: création + liaison + log = tout ou rien
     const user = await sequelize.transaction(async (t) => {
       const created = await Utilisateur.create({
-        lastName: sanitizeText(lastName, MAX_NAME_LENGTH),
-        firstName: sanitizeText(firstName, MAX_NAME_LENGTH),
-        email: sanitizeText(email).toLowerCase(),
-        password: hashedPassword,
-        role,
-        siret: sanitizeText(siret, 20)
+        lastName: sanitizeText(lastName, MAX_NAME_LENGTH), firstName: sanitizeText(firstName, MAX_NAME_LENGTH),
+        email: sanitizeText(email).toLowerCase(), password: hashedPassword,
+        role, siret: sanitizeText(siret, 20)
       }, { transaction: t });
 
       if (dentiste) {

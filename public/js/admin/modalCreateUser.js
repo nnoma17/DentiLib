@@ -45,7 +45,7 @@ function validateCreateUserForm() {
         return false;
     }
 
-    if (password.length < 6) {
+    if (password.length < 12) {
         errorMessage.style.display = "block";
         errorMessage.textContent = "Mot de passe trop court";
         passwordInput.focus();

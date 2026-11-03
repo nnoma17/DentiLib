@@ -9,13 +9,12 @@
  */
 
 // Format d'e-mail
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Numero de securite sociale
 const NUM_SECU_REGEX = /^\d{1,15}$/;
 
 //Mot de passe
-const PASSWORD_MIN_LENGTH = 6;
+const PASSWORD_MIN_LENGTH = 12;
 const PASSWORD_MAX_LENGTH = 72;
 
 const MAX_NAME_LENGTH = 100;
@@ -37,6 +36,9 @@ function isNonEmptyString(value) {
  * @param {*} value
  * @returns {boolean}
  */
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 function isValidEmail(value) {
   return (
     isNonEmptyString(value) &&
